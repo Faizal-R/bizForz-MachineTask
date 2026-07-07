@@ -1,6 +1,5 @@
 import dotenv from "dotenv";
 dotenv.config();
-console.log('DEBUG: JWT_SECRET from process.env:', process.env.JWT_SECRET);
 
 export class EnvConfig{
     static get PORT():number{
@@ -8,10 +7,10 @@ export class EnvConfig{
     
     }
     static get DATABASE_URI():string{
-        if(!process.env.DATABASE_URI && !process.env.MONGO_URI){
-            throw new Error("DATABASE_URI or MONGO_URI is required");
+        if(!process.env.DATABASE_URI){
+            throw new Error("DATABASE_URI is required");
         }
-        return (process.env.DATABASE_URI || process.env.MONGO_URI) as string;
+        return (process.env.DATABASE_URI) as string;
     }
 
     static get FRONTEND_URL():string{
@@ -21,11 +20,18 @@ export class EnvConfig{
         return process.env.FRONTEND_URL;
     }
 
-    static get JWT_SECRET(): string {
-        if (!process.env.JWT_SECRET) {
-            throw new Error("JWT_SECRET is required");
+    static get ACCESS_TOKEN_SECRET(): string {
+        if (!process.env.ACCESS_TOKEN_SECRET) {
+            throw new Error("ACCESS_TOKEN_SECRET is required");
         }
-        return process.env.JWT_SECRET;
+        return process.env.ACCESS_TOKEN_SECRET;
+    }
+
+    static get REFRESH_TOKEN_SECRET(): string {
+        if (!process.env.REFRESH_TOKEN_SECRET) {
+            throw new Error("REFRESH_TOKEN_SECRET is required");
+        }
+        return process.env.REFRESH_TOKEN_SECRET;
     }
 
 }

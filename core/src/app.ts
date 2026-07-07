@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import { errorMiddleware } from "./middlewares/error.middleware";
 import helmet from "helmet";
 import { EnvConfig } from "./config/env";
+import cookieParser from "cookie-parser";
 dotenv.config();
 
 const app: Application = express();
@@ -12,6 +13,7 @@ const app: Application = express();
 app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // app.use(limiter)
 app.use(

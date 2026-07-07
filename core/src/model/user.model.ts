@@ -6,8 +6,8 @@ export interface IUser extends Document {
   name: string;
   email: string;
   password?: string;
-  roles: Types.ObjectId[]; // References Role model
-  customPermissions: Types.ObjectId[]; // User-level permission overrides, references Permission model
+  roles: Types.ObjectId[]; 
+  customPermissions: Types.ObjectId[]; 
   status: "active" | "inactive";
   createdAt: Date;
   updatedAt: Date;
