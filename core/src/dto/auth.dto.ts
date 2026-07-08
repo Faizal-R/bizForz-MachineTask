@@ -18,6 +18,7 @@ export interface AuthUserDTO {
     tenantId: string;
     name: string;
     roles: string[];
+    permissions: string[];  // Resolved permission keys e.g. ["create:projects", "read:users"]
     status: "active" | "inactive";
 }
 

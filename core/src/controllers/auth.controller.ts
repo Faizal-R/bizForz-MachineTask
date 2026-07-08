@@ -55,4 +55,18 @@ export class AuthController implements IAuthController {
       );
     },
   );
+
+  me: RequestHandler = tryCatch(
+    async (req: Request, res: Response): Promise<void> => {
+      const user = await this._authService.me(req.user!.userId);
+
+      return createResponse(
+        res,
+        statusCodes.SUCCESS,
+        true,
+        "User profile retrieved successfully",
+        user,
+      );
+    },
+  );
 }

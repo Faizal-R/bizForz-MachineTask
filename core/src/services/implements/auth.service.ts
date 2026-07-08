@@ -2,7 +2,7 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
 import { IUserRepository } from "../../repositories/interfaces/user.repository.interface";
 import { IAuthService } from "../interfaces/auth.service.interface";
-import { RegisterTenantDTO, AuthResponseDTO, SigninDTO } from "dto/auth.dto";
+import { RegisterTenantDTO, AuthResponseDTO, SigninDTO, AuthUserDTO } from "dto/auth.dto";
 import { ITenantRepository } from "repositories/interfaces/tenant.repository.interface";
 import { IRoleRepository } from "repositories/interfaces/role.repository.interface";
 import { IPermissionRepository } from "repositories/interfaces/permission.repository.interface";
@@ -93,9 +93,12 @@ export class AuthService implements IAuthService {
         userId: user._id.toString(),
       });
 
+     
+      const populatedRoles = await this._roleRepository.findRolesByIds([adminRole._id]);
+
       return AuthMapper.toResponse(
         user,
-        [adminRole],
+        populatedRoles,
         accessToken,
         refreshToken,
       );
@@ -162,5 +165,34 @@ export class AuthService implements IAuthService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async me(userId: string): Promise<AuthUserDTO> {
+    const existingUser = await this._userRepository.findById(userId);
+
+    if (!existingUser) {
+      throw new CustomError("User not found", statusCodes.NOT_FOUND);
+    }
+
+    if (existingUser.status !== "active") {
+      throw new CustomError(
+        "Your user account has been deactivated. Please contact your company administrator for assistance.",
+        statusCodes.FORBIDDEN,
+      );
+    }
+
+    const tenant = await this._tenantRepository.findById(
+      existingUser.tenantId.toString(),
+    );
+    if (!tenant || tenant.status !== "active") {
+      throw new CustomError(
+        "Your organization's account is currently suspended or inactive. Please contact system support.",
+        statusCodes.FORBIDDEN,
+      );
+    }
+
+    const roles = await this._roleRepository.findRolesByIds(existingUser.roles);
+
+    return AuthMapper.toAuthUser(existingUser, roles);
   }
 }

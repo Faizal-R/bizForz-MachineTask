@@ -3,6 +3,7 @@ import { Router } from "express";
 import { IAuthController } from "../controllers/interfaces/auth.controller.interface";
 import { validate } from "middlewares/validate";
 import { registerTenantSchema, signinSchema } from "validations/AuthSchema";
+import { protect } from "middlewares/auth.middleware";
 
 import { TYPES } from "../di/types";
 
@@ -12,5 +13,6 @@ const authController = resolve<IAuthController>(TYPES.AuthController);
 
 router.post("/register",validate(registerTenantSchema), authController.register);
 router.post("/signin",validate(signinSchema),authController.signin)
+router.get("/me", protect, authController.me);
 
 export default router;
