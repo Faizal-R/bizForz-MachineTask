@@ -4,10 +4,6 @@
 
     "rootDir": "src",
 
-    "baseUrl": "./src",
-
-    "ignoreDeprecations": "6.0",
-
     "target": "ES2022",
 
     "module": "NodeNext",
@@ -35,6 +31,7 @@
     "composite": true,
 
     "paths": {
+      "*": ["./src/*"],
       "@/*": ["./src/*"]
     }
   },
