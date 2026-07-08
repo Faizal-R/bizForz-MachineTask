@@ -12,6 +12,7 @@ import { CustomError } from "utils/custom-error";
 import { statusCodes } from "constants/enums/statusCodes";
 import { generateTokens } from "helpers/generateTokens";
 import { AuthMapper } from "mappers/auth.mapper";
+import { Types } from "mongoose";
 
 @injectable()
 export class AuthService implements IAuthService {
@@ -59,7 +60,7 @@ export class AuthService implements IAuthService {
 
     try {
       //  Fetch all available system permissions to assign to the admin role
-      const systemPermissions = await this._permissionRepository.find({});
+      const systemPermissions = await this._permissionRepository.find({ tenantId: null } as any);
       const permissionIds = systemPermissions.map((p) => p._id);
 
       // Create default Admin role for the Tenant
@@ -140,11 +141,14 @@ export class AuthService implements IAuthService {
         );
       }
 
-      const roles = await this._roleRepository.findRolesByIds(
-        existingUser.roles,
-      );
+      const userWithPermissions =
+        await this._userRepository.findUserWithPermissions(existingUser._id.toString());
+      const authUser = userWithPermissions || existingUser;
+      const roles = userWithPermissions
+        ? (userWithPermissions.roles as any)
+        : await this._roleRepository.findRolesByIds(existingUser.roles as Types.ObjectId[]);
 
-      const roleNames = roles.map((r) => r.name);
+      const roleNames = roles.map((role: any) => role.name);
 
       const accessToken = generateTokens.accessToken({
         userId: existingUser._id.toString(),
@@ -157,7 +161,7 @@ export class AuthService implements IAuthService {
       });
 
       return AuthMapper.toResponse(
-        existingUser,
+        authUser,
         roles,
         accessToken,
         refreshToken,
@@ -168,31 +172,39 @@ export class AuthService implements IAuthService {
   }
 
   async me(userId: string): Promise<AuthUserDTO> {
-    const existingUser = await this._userRepository.findById(userId);
+    try {
+      const existingUser = await this._userRepository.findUserWithPermissions(userId);
 
-    if (!existingUser) {
-      throw new CustomError("User not found", statusCodes.NOT_FOUND);
-    }
+      if (!existingUser) {
+        throw new CustomError("User not found", statusCodes.NOT_FOUND);
+      }
 
-    if (existingUser.status !== "active") {
+      if (existingUser.status !== "active") {
+        throw new CustomError(
+          "Your user account has been deactivated. Please contact your company administrator for assistance.",
+          statusCodes.FORBIDDEN,
+        );
+      }
+
+      const tenant = await this._tenantRepository.findById(
+        existingUser.tenantId.toString(),
+      );
+      if (!tenant || tenant.status !== "active") {
+        throw new CustomError(
+          "Your organization's account is currently suspended or inactive. Please contact system support.",
+          statusCodes.FORBIDDEN,
+        );
+      }
+
+      const roles = existingUser.roles as any;
+
+      return AuthMapper.toAuthUser(existingUser, roles);
+    } catch (error) {
+      if (error instanceof CustomError) throw error;
       throw new CustomError(
-        "Your user account has been deactivated. Please contact your company administrator for assistance.",
-        statusCodes.FORBIDDEN,
+        "Failed to fetch user details",
+        statusCodes.INTERNAL_SERVER_ERROR,
       );
     }
-
-    const tenant = await this._tenantRepository.findById(
-      existingUser.tenantId.toString(),
-    );
-    if (!tenant || tenant.status !== "active") {
-      throw new CustomError(
-        "Your organization's account is currently suspended or inactive. Please contact system support.",
-        statusCodes.FORBIDDEN,
-      );
-    }
-
-    const roles = await this._roleRepository.findRolesByIds(existingUser.roles);
-
-    return AuthMapper.toAuthUser(existingUser, roles);
   }
 }

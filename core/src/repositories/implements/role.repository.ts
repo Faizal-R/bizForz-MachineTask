@@ -29,4 +29,11 @@ export class RoleRepository
       .populate("permissions")
       .exec();
   }
+
+  async findTenantRoles(tenantId: string): Promise<IRole[]> {
+    return this.model
+      .find({ tenantId: new Types.ObjectId(tenantId) })
+      .populate("permissions")
+      .exec();
+  }
 }

@@ -18,6 +18,20 @@ export function handleLogout() {
   }
 }
 
+export async function performLogout() {
+  isLoggingOut = true;
+  try {
+    await apiClient.post("/auth/logout");
+  } catch (error) {
+    console.warn("Logout API call failed:", error);
+  } finally {
+    isLoggingOut = false;
+    if (typeof window !== "undefined") {
+      window.location.href = "/signin";
+    }
+  }
+}
+
 apiClient.interceptors.request.use(
   (config) => {
     if (isLoggingOut) {

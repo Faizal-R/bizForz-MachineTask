@@ -13,6 +13,7 @@ const authController = resolve<IAuthController>(TYPES.AuthController);
 
 router.post("/register",validate(registerTenantSchema), authController.register);
 router.post("/signin",validate(signinSchema),authController.signin)
+router.post("/logout", authController.logout);
 router.get("/me", protect, authController.me);
 
 export default router;

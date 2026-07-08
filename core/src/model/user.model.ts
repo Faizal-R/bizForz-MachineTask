@@ -1,13 +1,15 @@
 import { Schema, model, Document, Types } from "mongoose";
 import bcrypt from "bcryptjs";
+import { IRole } from "./role.model";
+import { IPermission } from "./permission.model";
 
 export interface IUser extends Document {
   tenantId: Types.ObjectId;
   name: string;
   email: string;
   password?: string;
-  roles: Types.ObjectId[]; 
-  customPermissions: Types.ObjectId[]; 
+  roles: Types.ObjectId[] | IRole[]; 
+  customPermissions: Types.ObjectId[] | IPermission[]; 
   status: "active" | "inactive";
   createdAt: Date;
   updatedAt: Date;

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useProjects } from "../../../hooks/useProjects";
 
-interface Project {
-  _id: string;
+interface IProject {
+  id: string;
   name: string;
   description: string;
-  status: "Active" | "Completed" | "In Progress";
+  status: "planning" | "active" | "completed" | "on-hold";
 }
 
 interface ProjectsViewProps {
@@ -13,9 +13,9 @@ interface ProjectsViewProps {
 }
 
 const ProjectsView: React.FC<ProjectsViewProps> = ({ hasPermission }) => {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<IProject[]>([]);
   const [showModal, setShowModal] = useState(false);
-  const [currentProject, setCurrentProject] = useState<Partial<Project>>({ name: "", description: "", status: "Active" });
+  const [currentProject, setCurrentProject] = useState<Partial<IProject>>({ name: "", description: "", status: "planning" });
   const [editingId, setEditingId] = useState<string | null>(null);
   const { getAllProjects, createProject, updateProject, deleteProject } = useProjects();
 
@@ -34,14 +34,14 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ hasPermission }) => {
   }, [getAllProjects]);
 
   const handleOpenCreate = () => {
-    setCurrentProject({ name: "", description: "", status: "Active" });
+    setCurrentProject({ name: "", description: "", status: "planning" });
     setEditingId(null);
     setShowModal(true);
   };
 
-  const handleOpenEdit = (project: Project) => {
+  const handleOpenEdit = (project: IProject) => {
     setCurrentProject(project);
-    setEditingId(project._id);
+    setEditingId(project.id);
     setShowModal(true);
   };
 
@@ -52,7 +52,7 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ hasPermission }) => {
       } catch (err) {
         console.warn("Failed deleting project on backend, updating local state", err);
       }
-      setProjects(projects.filter(p => p._id !== id));
+      setProjects(projects.filter(p => p.id !== id));
     }
   };
 
@@ -64,14 +64,14 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ hasPermission }) => {
       } catch (err) {
         console.warn("Failed updating project on backend, updating local state", err);
       }
-      setProjects(projects.map(p => p._id === editingId ? { ...p, ...currentProject } as Project : p));
+      setProjects(projects.map(p => p.id === editingId ? { ...p, ...currentProject } as IProject : p));
     } else {
       const newProj = {
-        _id: String(Date.now()),
+        id: String(Date.now()),
         name: currentProject.name || "Untitled Project",
         description: currentProject.description || "",
-        status: currentProject.status || "Active"
-      } as Project;
+        status: currentProject.status || "planning"
+      } as IProject;
       try {
         const res = await createProject(newProj);
         if (res && res.data) {
@@ -144,16 +144,18 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ hasPermission }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => (
             <div
-              key={project._id}
+              key={project.id}
               className="bg-[#110e1a] border border-neutral-800 rounded-2xl p-6 flex flex-col justify-between hover:border-neutral-700 transition-colors shadow-sm relative group"
             >
               <div>
                 <div className="flex justify-between items-start mb-4">
                   <span className={`text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full border ${
-                    project.status === "Completed"
+                    project.status === "completed"
                       ? "bg-green-950/40 text-green-400 border-green-900/50"
-                      : project.status === "In Progress"
+                      : project.status === "active"
                       ? "bg-blue-950/40 text-blue-400 border-blue-900/50"
+                      : project.status === "on-hold"
+                      ? "bg-amber-950/40 text-amber-400 border-amber-900/50"
                       : "bg-primary-main/15 text-primary-main border-primary-main/25"
                   }`}>
                     {project.status}
@@ -174,7 +176,7 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ hasPermission }) => {
                     )}
                     {hasPermission("delete:projects") && (
                       <button
-                        onClick={() => handleDelete(project._id)}
+                        onClick={() => handleDelete(project.id)}
                         className="p-1.5 bg-red-950/30 text-red-400 hover:text-red-300 rounded-lg transition-colors"
                         title="Delete Project"
                       >
@@ -247,9 +249,10 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ hasPermission }) => {
                   onChange={(e) => setCurrentProject({ ...currentProject, status: e.target.value as any })}
                   className="w-full px-4 py-3 bg-[#08060d] text-white rounded-lg border border-neutral-800 text-sm outline-none focus:border-primary-main"
                 >
-                  <option value="Active">Active</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Completed">Completed</option>
+                  <option value="planning">Planning</option>
+                  <option value="active">Active</option>
+                  <option value="completed">Completed</option>
+                  <option value="on-hold">On Hold</option>
                 </select>
               </div>
 

@@ -31,4 +31,20 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
       .populate("customPermissions")
       .exec();
   }
+
+  async findTenantUsers(tenantId: string): Promise<IUser[]> {
+    return this.model
+      .find({ tenantId: new Types.ObjectId(tenantId) })
+      .populate("roles")
+      .populate("customPermissions")
+      .exec();
+  }
+
+  async findByIdWithRelations(userId: string): Promise<IUser | null> {
+    return this.model
+      .findById(userId)
+      .populate("roles")
+      .populate("customPermissions")
+      .exec();
+  }
 }

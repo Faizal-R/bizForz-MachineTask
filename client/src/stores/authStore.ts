@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import AuthService from "@/services/AuthService";
+import { performLogout } from "@/config/apiClient";
 
 interface User {
   id: string;
@@ -13,6 +14,7 @@ interface AuthState {
   user: User | null;
   loading: boolean;
   initialized: boolean;
+  setUser: (user: User) => void;
   fetchUser: () => Promise<void>;
   logout: () => Promise<void>;
   hasPermission: (permission: string) => boolean;
@@ -23,6 +25,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   loading: true,
   initialized: false,
   
+  setUser: (user: User) => {
+    set({ user, initialized: true, loading: false });
+  },
+
   fetchUser: async () => {
     set({ loading: true });
     try {
@@ -40,9 +46,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: async () => {
     set({ loading: true });
     try {
-      await AuthService.logout();
+      await performLogout();
     } finally {
-      set({ user: null, loading: false });
+      set({ user: null, loading: false, initialized: false });
     }
   },
 

@@ -1,10 +1,11 @@
 import { Schema, model, Document, Types } from "mongoose";
+import { IPermission } from "./permission.model";
 
 export interface IRole extends Document {
   tenantId: Types.ObjectId;
   name: string;
   description?: string;
-  permissions: Types.ObjectId[]; 
+  permissions: Types.ObjectId[] | IPermission[]; 
   createdAt: Date;
   updatedAt: Date;
 }

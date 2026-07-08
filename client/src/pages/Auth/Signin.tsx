@@ -29,7 +29,7 @@ const Signin: React.FC = () => {
       if (data?.error || !data?.success) {
         throw new Error(data?.message || "Sign-in failed. Please try again.");
       }
-
+      console.log("everythings works here")
       navigate("/dashboard");
     } catch (err: any) {
       setError(err.message || "Something went wrong.");

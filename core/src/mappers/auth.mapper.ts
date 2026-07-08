@@ -5,10 +5,14 @@ import { IPermission } from "model/permission.model";
 
 export const AuthMapper = {
   toAuthUser: (user: IUser, roles: IRole[]): AuthResponseDTO["user"] => {
+    const rolePermissionNames = roles.flatMap((role) =>
+      (role.permissions as unknown as IPermission[]).map((permission) => permission.name),
+    );
+    const customPermissionNames = (user.customPermissions as unknown as IPermission[])
+      ?.filter((permission) => permission?.name)
+      .map((permission) => permission.name) || [];
     const permissionNames = Array.from(
-      new Set(
-        roles.flatMap((r) => (r.permissions as unknown as IPermission[]).map((p) => p.name))
-      )
+      new Set([...rolePermissionNames, ...customPermissionNames]),
     ) as string[];
 
     return {

@@ -6,6 +6,7 @@ import { CustomError } from "utils/custom-error";
 import { statusCodes } from "constants/enums/statusCodes";
 import { PermissionsMapper } from "mappers/permissions.mapper";
 import { PermissionsDTO } from "dto/permissions.dto";
+import { Types } from "mongoose";
 
 @injectable()
 export class PermissionService implements IPermissionService {
@@ -14,9 +15,14 @@ export class PermissionService implements IPermissionService {
     private _permissionRepository: IPermissionRepository,
   ) {}
 
-  async getAllPermissions(): Promise<PermissionsDTO[]> {
+  async getAllPermissions(tenantId: string): Promise<PermissionsDTO[]> {
     try {
-      const permissions = await this._permissionRepository.find();
+      const permissions = await this._permissionRepository.find({
+        $or: [
+          { tenantId: null },
+          { tenantId: new Types.ObjectId(tenantId) },
+        ],
+      } as any);
       if (!permissions) {
         throw new CustomError("No permissions found", statusCodes.NOT_FOUND);
       }

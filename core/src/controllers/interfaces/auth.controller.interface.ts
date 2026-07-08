@@ -4,4 +4,5 @@ export interface IAuthController {
     register: RequestHandler;
     signin: RequestHandler;
     me: RequestHandler;
+    logout: RequestHandler;
 }

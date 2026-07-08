@@ -2,10 +2,19 @@ import React, { useState, useEffect } from "react";
 import { useUsers } from "../../../hooks/useUsers";
 import { useRoles } from "../../../hooks/useRoles";
 
-interface UserRecord {
-  _id: string;
+interface IUserRecord {
+  id: string;
   name: string;
   email: string;
+  roles: string[];
+  customPermissions: string[];
+}
+
+interface CreateUserPayload {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
   roles: string[];
   customPermissions: string[];
 }
@@ -17,18 +26,20 @@ interface UsersViewProps {
 const AVAILABLE_PERMISSIONS = [
   "create:projects", "read:projects", "update:projects", "delete:projects",
   "create:users", "read:users", "update:users", "delete:users",
-  "create:roles", "read:roles", "update:roles", "delete:roles"
+  "create:roles", "read:roles", "update:roles", "delete:roles",
+  "read:permissions"
 ];
 
 const UsersView: React.FC<UsersViewProps> = ({ hasPermission }) => {
-  const [users, setUsers] = useState<UserRecord[]>([]);
-  const [availableRoles, setAvailableRoles] = useState<{ _id: string; name: string }[]>([]);
+  const [users, setUsers] = useState<IUserRecord[]>([]);
+  const [availableRoles, setAvailableRoles] = useState<{ id: string; name: string }[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [newUser, setNewUser] = useState({ name: "", email: "", password: "", role: "Employee" });
-  const [selectedUser, setSelectedUser] = useState<UserRecord | null>(null);
+  const [selectedUser, setSelectedUser] = useState<IUserRecord | null>(null);
   const [showOverrideModal, setShowOverrideModal] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { getAllUsers, createUser, updateUserPermissions, updateUserRole } = useUsers();
   const { getAllRoles } = useRoles();
 
@@ -62,9 +73,10 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission }) => {
   const handleSaveUser = async (e: React.FormEvent) => {
     e.preventDefault();
     if (modalMode === "add") {
-      const createdUser: UserRecord = {
-        _id: String(Date.now()),
+      const createdUser: CreateUserPayload = {
+        id: String(Date.now()),
         name: newUser.name,
+        password: newUser.password,
         email: newUser.email,
         roles: [newUser.role],
         customPermissions: []
@@ -81,7 +93,7 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission }) => {
         setUsers([...users, createdUser]);
       }
     } else if (modalMode === "edit" && editingUserId) {
-      const existing = users.find(u => u._id === editingUserId);
+      const existing = users.find(u => u.id === editingUserId);
       if (existing) {
         const updated = {
           ...existing,
@@ -89,7 +101,7 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission }) => {
           email: newUser.email,
           roles: [newUser.role]
         };
-        setUsers(users.map(u => u._id === editingUserId ? updated : u));
+        setUsers(users.map(u => u.id === editingUserId ? updated : u));
         try {
           await updateUserRole(editingUserId, [newUser.role]);
         } catch (err) {
@@ -102,19 +114,21 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission }) => {
     setEditingUserId(null);
   };
 
-  const handleEditClick = (user: UserRecord) => {
+  const handleEditClick = (user: IUserRecord) => {
     setModalMode("edit");
-    setEditingUserId(user._id);
+    setEditingUserId(user.id);
+    const roleVal = user.roles[0];
+    const roleName = roleVal && typeof roleVal === "object" ? (roleVal as any).name : roleVal;
     setNewUser({
       name: user.name,
       email: user.email,
       password: "", // Password typically isn't updated here
-      role: user.roles[0] || "Employee"
+      role: roleName || "Employee"
     });
     setShowModal(true);
   };
 
-  const handleOpenOverrides = (user: UserRecord) => {
+  const handleOpenPermissions = (user: IUserRecord) => {
     setSelectedUser(user);
     setShowOverrideModal(true);
   };
@@ -131,11 +145,11 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission }) => {
     setSelectedUser(updatedUser);
     
     try {
-      await updateUserPermissions(selectedUser._id, updatedPerms);
+      await updateUserPermissions(selectedUser.id, updatedPerms);
     } catch (err) {
       console.warn("Failed updating user permissions on backend, updating local state", err);
     }
-    setUsers(users.map(u => u._id === selectedUser._id ? updatedUser : u));
+    setUsers(users.map(u => u.id === selectedUser.id ? updatedUser : u));
   };
 
 
@@ -210,7 +224,7 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission }) => {
               </thead>
               <tbody className="divide-y divide-neutral-800/60">
                 {users.map((u) => (
-                  <tr key={u._id} className="hover:bg-[#1c1926]/20 transition-colors text-sm">
+                  <tr key={u.id} className="hover:bg-[#1c1926]/20 transition-colors text-sm">
                     <td className="p-5 font-semibold text-white flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-primary-main/15 text-primary-main flex items-center justify-center font-bold border border-primary-main/25">
                         {u.name.charAt(0).toUpperCase()}
@@ -219,17 +233,20 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission }) => {
                     </td>
                     <td className="p-5 text-gray-400">{u.email}</td>
                     <td className="p-5">
-                      {u.roles.map((r, i) => (
-                        <span key={i} className={`text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full border ${
-                          r === "Admin"
-                            ? "bg-red-950/40 text-red-400 border-red-950/50"
-                            : r === "Manager"
-                            ? "bg-blue-950/40 text-blue-400 border-blue-950/50"
-                            : "bg-neutral-800 text-gray-400 border-neutral-700"
-                        }`}>
-                          {r}
-                        </span>
-                      ))}
+                      {u.roles.map((r: any, i) => {
+                        const roleName = r && typeof r === "object" ? r.name : r;
+                        return (
+                          <span key={i} className={`text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full border ${
+                            roleName === "Admin"
+                              ? "bg-red-950/40 text-red-400 border-red-950/50"
+                              : roleName === "Manager"
+                              ? "bg-blue-950/40 text-blue-400 border-blue-950/50"
+                              : "bg-neutral-800 text-gray-400 border-neutral-700"
+                          }`}>
+                            {roleName}
+                          </span>
+                        );
+                      })}
                     </td>
                     <td className="p-5">
                       {u.customPermissions.length > 0 ? (
@@ -251,7 +268,7 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission }) => {
                       )}
                       {hasPermission("update:users") && (
                         <button
-                          onClick={() => handleOpenOverrides(u)}
+                          onClick={() => handleOpenPermissions(u)}
                           className="text-xs font-bold text-primary-main hover:text-primary-light transition-colors"
                         >
                           Adjust Overrides
@@ -304,14 +321,32 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission }) => {
               {modalMode === "add" && (
                 <div className="space-y-1">
                   <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">Password</label>
-                  <input
-                    type="password"
-                    required
-                    value={newUser.password}
-                    onChange={e => setNewUser({ ...newUser, password: e.target.value })}
-                    placeholder="••••••••"
-                    className="w-full px-4 py-3 bg-[#08060d] text-white rounded-lg border border-neutral-800 text-sm outline-none focus:border-primary-main"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      required
+                      value={newUser.password}
+                      onChange={e => setNewUser({ ...newUser, password: e.target.value })}
+                      placeholder="••••••••"
+                      className="w-full px-4 py-3 bg-[#08060d] text-white rounded-lg border border-neutral-800 text-sm outline-none focus:border-primary-main pr-12"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                    >
+                      {showPassword ? (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                        </svg>
+                      ) : (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                 </div>
               )}
 
@@ -324,7 +359,7 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission }) => {
                     className="w-full px-4 py-3 bg-[#08060d] text-white rounded-lg border border-neutral-800 text-sm outline-none focus:border-primary-main"
                   >
                     {availableRoles.map(role => (
-                      <option key={role._id} value={role.name}>{role.name}</option>
+                      <option key={role.id} value={role.name}>{role.name}</option>
                     ))}
                   </select>
                 ) : (

@@ -1,23 +1,27 @@
 import { Permission } from "../model/permission.model";
+import { Permissions } from "../constants/permissions";
 
 export const DEFAULT_PERMISSIONS = [
   // Projects
-  { name: "create:projects", category: "Project", description: "Ability to create new projects" },
-  { name: "read:projects", category: "Project", description: "Ability to view projects" },
-  { name: "update:projects", category: "Project", description: "Ability to edit projects" },
-  { name: "delete:projects", category: "Project", description: "Ability to delete projects" },
+  { name: Permissions.Projects.CREATE, category: "Project", description: "Ability to create new projects" },
+  { name: Permissions.Projects.READ, category: "Project", description: "Ability to view projects" },
+  { name: Permissions.Projects.UPDATE, category: "Project", description: "Ability to edit projects" },
+  { name: Permissions.Projects.DELETE, category: "Project", description: "Ability to delete projects" },
 
   // Roles
-  { name: "create:roles", category: "Role", description: "Ability to create roles" },
-  { name: "read:roles", category: "Role", description: "Ability to view roles" },
-  { name: "update:roles", category: "Role", description: "Ability to update roles" },
-  { name: "delete:roles", category: "Role", description: "Ability to delete roles" },
+  { name: Permissions.Roles.CREATE, category: "Role", description: "Ability to create roles" },
+  { name: Permissions.Roles.READ, category: "Role", description: "Ability to view roles" },
+  { name: Permissions.Roles.UPDATE, category: "Role", description: "Ability to update roles" },
+  { name: Permissions.Roles.DELETE, category: "Role", description: "Ability to delete roles" },
+
+  // Permissions
+  { name: Permissions.Permissions.READ, category: "Permission", description: "Ability to view permissions" },
 
   // Users
-  { name: "create:users", category: "User", description: "Ability to create users" },
-  { name: "read:users", category: "User", description: "Ability to view users" },
-  { name: "update:users", category: "User", description: "Ability to update users" },
-  { name: "delete:users", category: "User", description: "Ability to delete users" },
+  { name: Permissions.Users.CREATE, category: "User", description: "Ability to create users" },
+  { name: Permissions.Users.READ, category: "User", description: "Ability to view users" },
+  { name: Permissions.Users.UPDATE, category: "User", description: "Ability to update users" },
+  { name: Permissions.Users.DELETE, category: "User", description: "Ability to delete users" },
 ];
 
 export const seedPermissions = async (): Promise<void> => {

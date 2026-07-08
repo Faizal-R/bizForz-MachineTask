@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useRoles } from "../../../hooks/useRoles";
 
-interface RoleRecord {
-  _id: string;
+interface IRoleRecord {
+  id: string;
   name: string;
   description: string;
   permissions: string[];
@@ -15,14 +15,15 @@ interface RolesViewProps {
 const AVAILABLE_PERMISSIONS = [
   "create:projects", "read:projects", "update:projects", "delete:projects",
   "create:users", "read:users", "update:users", "delete:users",
-  "create:roles", "read:roles", "update:roles", "delete:roles"
+  "create:roles", "read:roles", "update:roles", "delete:roles",
+  "read:permissions"
 ];
 
 const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
-  const [roles, setRoles] = useState<RoleRecord[]>([]);
+  const [roles, setRoles] = useState<IRoleRecord[]>([]);
 
   const [showModal, setShowModal] = useState(false);
-  const [editingRole, setEditingRole] = useState<RoleRecord | null>(null);
+  const [editingRole, setEditingRole] = useState<IRoleRecord | null>(null);
   const [formState, setFormState] = useState({ name: "", description: "", permissions: [] as string[] });
   const { getAllRoles, createRole, updateRole, deleteRole } = useRoles();
 
@@ -46,7 +47,7 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
     setShowModal(true);
   };
 
-  const handleOpenEdit = (role: RoleRecord) => {
+  const handleOpenEdit = (role: IRoleRecord) => {
     setEditingRole(role);
     setFormState({ name: role.name, description: role.description, permissions: [...role.permissions] });
     setShowModal(true);
@@ -63,7 +64,7 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
     e.preventDefault();
     if (editingRole) {
       try {
-        await updateRole(editingRole._id, {
+        await updateRole(editingRole.id, {
           name: formState.name,
           description: formState.description,
           permissions: formState.permissions,
@@ -72,14 +73,14 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
         console.warn("Failed updating role on backend, updating local state", err);
       }
       const updated = roles.map(r =>
-        r._id === editingRole._id
+        r.id === editingRole.id
           ? { ...r, name: formState.name, description: formState.description, permissions: formState.permissions }
           : r
       );
       setRoles(updated);
     } else {
-      const newRole: RoleRecord = {
-        _id: String(Date.now()),
+      const newRole: IRoleRecord = {
+        id: String(Date.now()),
         name: formState.name,
         description: formState.description,
         permissions: formState.permissions
@@ -106,7 +107,7 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
       } catch (err) {
         console.warn("Failed deleting role on backend, updating local state", err);
       }
-      setRoles(roles.filter(r => r._id !== id));
+      setRoles(roles.filter(r => r.id !== id));
     }
   };
 
@@ -160,7 +161,7 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {roles.map((role) => (
             <div
-              key={role._id}
+              key={role.id}
               className="bg-[#110e1a]/60 hover:bg-[#110e1a] p-6 rounded-2xl border border-neutral-800 hover:border-neutral-700 transition-all flex flex-col justify-between group"
             >
               <div className="space-y-4">
@@ -180,7 +181,7 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
                     )}
                     {hasPermission("delete:roles") && (
                       <button
-                        onClick={() => handleDelete(role._id)}
+                        onClick={() => handleDelete(role.id)}
                         className="p-1.5 bg-red-950/40 hover:bg-red-900/60 text-red-400 rounded-lg transition-colors"
                         title="Delete Role"
                       >
