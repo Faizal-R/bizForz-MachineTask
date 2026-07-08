@@ -1,7 +1,7 @@
-import { AuthResponseDTO } from "dto/auth.dto";
-import { IUser } from "model/user.model";
-import { IRole } from "model/role.model";
-import { IPermission } from "model/permission.model";
+import { AuthResponseDTO } from "../dto/auth.dto.js";
+import { IUser } from "../model/user.model.js";
+import { IRole } from "../model/role.model.js";
+import { IPermission } from "../model/permission.model.js";
 
 export const AuthMapper = {
   toAuthUser: (user: IUser, roles: IRole[]): AuthResponseDTO["user"] => {

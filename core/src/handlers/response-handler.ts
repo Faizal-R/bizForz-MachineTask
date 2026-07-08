@@ -1,6 +1,6 @@
 import type { Response } from "express";
-import { statusCodes } from "../constants/enums/statusCodes"
-import { CustomError } from "../utils/custom-error";
+import { statusCodes } from "../constants/enums/statusCodes.js"
+import { CustomError } from "../utils/custom-error.js";
 
 export function createResponse<T>(
   response: Response,

@@ -1,5 +1,5 @@
-import { Permission } from "../model/permission.model";
-import { Permissions } from "../constants/permissions";
+import { Permission } from "../model/permission.model.js";
+import { Permissions } from "../constants/permissions.js";
 
 export const DEFAULT_PERMISSIONS = [
   // Projects

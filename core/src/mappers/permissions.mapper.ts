@@ -1,5 +1,5 @@
-import { PermissionsDTO } from "dto/permissions.dto";
-import { IPermission } from "model/permission.model";
+import { PermissionsDTO } from "../dto/permissions.dto.js";
+import { IPermission } from "../model/permission.model.js";
 
 export const PermissionsMapper = {
   toResponse(permission: IPermission): PermissionsDTO {

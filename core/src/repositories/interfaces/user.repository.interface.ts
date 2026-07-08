@@ -1,5 +1,5 @@
-import { IUser } from "../../model/user.model";
-import { IBaseRepository } from "./base.repository.interface";
+import { IUser } from "../../model/user.model.js";
+import { IBaseRepository } from "./base.repository.interface.js";
 
 export interface IUserRepository extends IBaseRepository<IUser> {
   findByEmailAndTenant(email: string, tenantId: string): Promise<IUser | null>;

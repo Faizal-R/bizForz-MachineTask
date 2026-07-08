@@ -1,10 +1,10 @@
 import express, { Application } from "express";
 import cors from "cors";
-import router from "./routes";
+import router from "./routes/index.js";
 import dotenv from "dotenv";
-import { errorMiddleware } from "./middlewares/error.middleware";
+import { errorMiddleware } from "./middlewares/error.middleware.js";
 import helmet from "helmet";
-import { EnvConfig } from "./config/env";
+import { EnvConfig } from "./config/env.js";
 import cookieParser from "cookie-parser";
 dotenv.config();
 

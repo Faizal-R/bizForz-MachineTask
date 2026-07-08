@@ -1,11 +1,11 @@
-import { resolve } from "../di";
+import { resolve } from "../di/index.js";
 import { Router } from "express";
-import { IAuthController } from "../controllers/interfaces/auth.controller.interface";
-import { validate } from "middlewares/validate";
-import { registerTenantSchema, signinSchema } from "validations/AuthSchema";
-import { protect } from "middlewares/auth.middleware";
+import { IAuthController } from "../controllers/interfaces/auth.controller.interface.js";
+import { validate } from "../middlewares/validate.js";
+import { registerTenantSchema, signinSchema } from "../validations/AuthSchema.js";
+import { protect } from "../middlewares/auth.middleware.js";
 
-import { TYPES } from "../di/types";
+import { TYPES } from "../di/types.js";
 
 const router: Router = Router();
 

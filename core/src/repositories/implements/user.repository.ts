@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
-import { BaseRepository } from "./base.repository";
-import { IUser, User } from "../../model/user.model";
-import { IUserRepository } from "../interfaces/user.repository.interface";
+import { BaseRepository } from "./base.repository.js";
+import { IUser, User } from "../../model/user.model.js";
+import { IUserRepository } from "../interfaces/user.repository.interface.js";
 import { Types } from "mongoose";
 
 @injectable()

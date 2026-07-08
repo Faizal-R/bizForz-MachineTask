@@ -1,21 +1,21 @@
-import container from "./index";
-import { TYPES } from "./types";
+import container from "./index.js";
+import { TYPES } from "./types.js";
 
 // Services Interfaces
-import { IAuthService } from "../services/interfaces/auth.service.interface";
-import { ITenantService } from "../services/interfaces/tenant.service.interface";
-import { IUserService } from "../services/interfaces/user.service.interface";
-import { IRoleService } from "../services/interfaces/role.service.interface";
-import { IPermissionService } from "../services/interfaces/permission.service.interface";
-import { IProjectService } from "../services/interfaces/project.service.interface";
+import { IAuthService } from "../services/interfaces/auth.service.interface.js";
+import { ITenantService } from "../services/interfaces/tenant.service.interface.js";
+import { IUserService } from "../services/interfaces/user.service.interface.js";
+import { IRoleService } from "../services/interfaces/role.service.interface.js";
+import { IPermissionService } from "../services/interfaces/permission.service.interface.js";
+import { IProjectService } from "../services/interfaces/project.service.interface.js";
 
 // Services Implements
-import { AuthService } from "../services/implements/auth.service";
-import { TenantService } from "../services/implements/tenant.service";
-import { UserService } from "../services/implements/user.service";
-import { RoleService } from "../services/implements/role.service";
-import { PermissionService } from "../services/implements/permission.service";
-import { ProjectService } from "../services/implements/project.service";
+import { AuthService } from "../services/implements/auth.service.js";
+import { TenantService } from "../services/implements/tenant.service.js";
+import { UserService } from "../services/implements/user.service.js";
+import { RoleService } from "../services/implements/role.service.js";
+import { PermissionService } from "../services/implements/permission.service.js";
+import { ProjectService } from "../services/implements/project.service.js";
 
 // Bind Services
 container.bind<IAuthService>(TYPES.AuthService).to(AuthService).inSingletonScope();

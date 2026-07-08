@@ -1,4 +1,4 @@
-import { AuthResponseDTO, SigninDTO, RegisterTenantDTO, AuthUserDTO } from "dto/auth.dto";
+import { AuthResponseDTO, SigninDTO, RegisterTenantDTO, AuthUserDTO } from "../../dto/auth.dto.js";
 
 export interface IAuthService {
   registerTenant(dto: RegisterTenantDTO): Promise<AuthResponseDTO>;

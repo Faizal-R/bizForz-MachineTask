@@ -1,4 +1,4 @@
-import { ITenant } from "../../model/tenant.model";
+import { ITenant } from "../../model/tenant.model.js";
 
 export interface ITenantService {
 }

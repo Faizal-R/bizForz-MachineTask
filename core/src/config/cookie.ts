@@ -1,5 +1,5 @@
 import { CookieOptions } from "express";
-import { EnvConfig } from "./env";
+import { EnvConfig } from "./env.js";
 
 export const accesCookieConfig: CookieOptions = {
   maxAge: 15 * 60 * 1000,

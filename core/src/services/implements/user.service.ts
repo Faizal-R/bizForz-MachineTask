@@ -1,15 +1,15 @@
 import { inject, injectable } from "inversify";
-import { TYPES } from "../../di/types";
-import { IUserRepository } from "../../repositories/interfaces/user.repository.interface";
-import { IRoleRepository } from "../../repositories/interfaces/role.repository.interface";
-import { IPermissionRepository } from "../../repositories/interfaces/permission.repository.interface";
-import { IUserService } from "../interfaces/user.service.interface";
+import { TYPES } from "../../di/types.js";
+import { IUserRepository } from "../../repositories/interfaces/user.repository.interface.js";
+import { IRoleRepository } from "../../repositories/interfaces/role.repository.interface.js";
+import { IPermissionRepository } from "../../repositories/interfaces/permission.repository.interface.js";
+import { IUserService } from "../interfaces/user.service.interface.js";
 import { Types } from "mongoose";
-import { hashPassword } from "../../utils/hash";
-import { UserMapper } from "../../mappers/user.mapper";
-import { UserResponseDTO, CreateUserDTO } from "../../dto/user.dto";
-import { CustomError } from "utils/custom-error";
-import { statusCodes } from "constants/enums/statusCodes";
+import { hashPassword } from "../../utils/hash.js";
+import { UserMapper } from "../../mappers/user.mapper.js";
+import { UserResponseDTO, CreateUserDTO } from "../../dto/user.dto.js";
+import { CustomError } from "../../utils/custom-error.js";
+import { statusCodes } from "../../constants/enums/statusCodes.js";
 
 @injectable()
 export class UserService implements IUserService {

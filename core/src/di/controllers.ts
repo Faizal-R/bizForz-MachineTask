@@ -1,19 +1,19 @@
-import container from "./index";
-import { TYPES } from "./types";
+import container from "./index.js";
+import { TYPES } from "./types.js";
 
 // Controllers Interfaces
-import { IAuthController } from "../controllers/interfaces/auth.controller.interface";
-import { IRoleController } from "../controllers/interfaces/role.controller.interface";
-import { IProjectController } from "../controllers/interfaces/project.controller.interface";
-import { IUserController } from "../controllers/interfaces/user.controller.interface";
-import { IPermissionController } from "../controllers/interfaces/permission.controller.interface";
+import { IAuthController } from "../controllers/interfaces/auth.controller.interface.js";
+import { IRoleController } from "../controllers/interfaces/role.controller.interface.js";
+import { IProjectController } from "../controllers/interfaces/project.controller.interface.js";
+import { IUserController } from "../controllers/interfaces/user.controller.interface.js";
+import { IPermissionController } from "../controllers/interfaces/permission.controller.interface.js";
 
 // Controllers Implements
-import { AuthController } from "../controllers/auth.controller";
-import { RoleController } from "../controllers/role.controller";
-import { ProjectController } from "../controllers/project.controller";
-import { UserController } from "../controllers/user.controller";
-import { PermissionController } from "../controllers/permission.controller";
+import { AuthController } from "../controllers/auth.controller.js";
+import { RoleController } from "../controllers/role.controller.js";
+import { ProjectController } from "../controllers/project.controller.js";
+import { UserController } from "../controllers/user.controller.js";
+import { PermissionController } from "../controllers/permission.controller.js";
 
 // Bind Controllers
 container.bind<IAuthController>(TYPES.AuthController).to(AuthController).inSingletonScope();

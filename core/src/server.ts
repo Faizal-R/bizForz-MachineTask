@@ -1,9 +1,9 @@
 import "reflect-metadata";
-import './di/inversify.config'
-import app from "./app";
-import connectDB from "./config/db";
-import { EnvConfig } from "./config/env";
-import { seedPermissions } from "./config/seed";
+import './di/inversify.config.js'
+import app from "./app.js";
+import connectDB from "./config/db.js";
+import { EnvConfig } from "./config/env.js";
+import { seedPermissions } from "./config/seed.js";
 
 const PORT = EnvConfig.PORT
 

@@ -1,11 +1,11 @@
 import { inject, injectable } from "inversify";
 import { Request, RequestHandler, Response } from "express";
-import { TYPES } from "di/types";
-import { IPermissionController } from "./interfaces/permission.controller.interface";
-import { IPermissionService } from "services/interfaces/permission.service.interface";
-import { tryCatch } from "handlers/try-catch";
-import { createResponse } from "handlers/response-handler";
-import { statusCodes } from "constants/enums/statusCodes";
+import { TYPES } from "../di/types.js";
+import { IPermissionController } from "./interfaces/permission.controller.interface.js";
+import { IPermissionService } from "../services/interfaces/permission.service.interface.js";
+import { tryCatch } from "../handlers/try-catch.js";
+import { createResponse } from "../handlers/response-handler.js";
+import { statusCodes } from "../constants/enums/statusCodes.js";
 
 @injectable()
 export class PermissionController implements IPermissionController {

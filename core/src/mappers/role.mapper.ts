@@ -1,5 +1,5 @@
-import { IRole } from "../model/role.model";
-import { RoleResponseDTO } from "../dto/role.dto";
+import { IRole } from "../model/role.model.js";
+import { RoleResponseDTO } from "../dto/role.dto.js";
 
 export class RoleMapper {
   static toResponse(role: IRole): RoleResponseDTO {

@@ -10,9 +10,9 @@
 
     "target": "ES2022",
 
-    "module": "esnext",
+    "module": "NodeNext",
 
-    "moduleResolution": "bundler",
+    "moduleResolution": "NodeNext",
 
     "strict": true,
 

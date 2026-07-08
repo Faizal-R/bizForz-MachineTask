@@ -1,17 +1,17 @@
 import { inject, injectable } from "inversify";
-import { TYPES } from "../../di/types";
-import { IUserRepository } from "../../repositories/interfaces/user.repository.interface";
-import { IAuthService } from "../interfaces/auth.service.interface";
-import { RegisterTenantDTO, AuthResponseDTO, SigninDTO, AuthUserDTO } from "dto/auth.dto";
-import { ITenantRepository } from "repositories/interfaces/tenant.repository.interface";
-import { IRoleRepository } from "repositories/interfaces/role.repository.interface";
-import { IPermissionRepository } from "repositories/interfaces/permission.repository.interface";
-import { slugify } from "helpers/slugify";
-import { comparePassword, hashPassword } from "utils/hash";
-import { CustomError } from "utils/custom-error";
-import { statusCodes } from "constants/enums/statusCodes";
-import { generateTokens } from "helpers/generateTokens";
-import { AuthMapper } from "mappers/auth.mapper";
+import { TYPES } from "../../di/types.js";
+import { IUserRepository } from "../../repositories/interfaces/user.repository.interface.js";
+import { IAuthService } from "../interfaces/auth.service.interface.js";
+import { RegisterTenantDTO, AuthResponseDTO, SigninDTO, AuthUserDTO } from "../../dto/auth.dto.js";
+import { ITenantRepository } from "../../repositories/interfaces/tenant.repository.interface.js";
+import { IRoleRepository } from "../../repositories/interfaces/role.repository.interface.js";
+import { IPermissionRepository } from "../../repositories/interfaces/permission.repository.interface.js";
+import { slugify } from "../../helpers/slugify.js";
+import { comparePassword, hashPassword } from "../../utils/hash.js";
+import { CustomError } from "../../utils/custom-error.js";
+import { statusCodes } from "../../constants/enums/statusCodes.js";
+import { generateTokens } from "../../helpers/generateTokens.js";
+import { AuthMapper } from "../../mappers/auth.mapper.js";
 import { Types } from "mongoose";
 
 @injectable()

@@ -1,5 +1,5 @@
-import { IUser } from "../model/user.model";
-import { UserResponseDTO } from "../dto/user.dto";
+import { IUser } from "../model/user.model.js";
+import { UserResponseDTO } from "../dto/user.dto.js";
 
 export class UserMapper {
   static toResponse(user: IUser): UserResponseDTO {

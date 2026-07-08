@@ -1,15 +1,14 @@
 import { inject, injectable } from "inversify";
-import { IAuthController } from "./interfaces/auth.controller.interface";
-import { Types } from "mongoose";
-import { TYPES } from "di/types";
-import { IAuthService } from "services/interfaces/auth.service.interface";
-import { NextFunction, Request, RequestHandler, Response } from "express";
-import { tryCatch } from "handlers/try-catch";
-import { RegisterTenantDTO, SigninDTO } from "dto/auth.dto";
-import { accesCookieConfig, refreshCookieConfig } from "config/cookie";
-import { createResponse } from "handlers/response-handler";
-import { statusCodes } from "constants/enums/statusCodes";
-import { Tokens } from "constants/enums/tokens";
+import { IAuthController } from "./interfaces/auth.controller.interface.js";
+import { TYPES } from "../di/types.js";
+import { IAuthService } from "../services/interfaces/auth.service.interface.js";
+import { Request, RequestHandler, Response } from "express";
+import { tryCatch } from "../handlers/try-catch.js";
+import { RegisterTenantDTO, SigninDTO } from "../dto/auth.dto.js";
+import { accesCookieConfig, refreshCookieConfig } from "../config/cookie.js";
+import { createResponse } from "../handlers/response-handler.js";
+import { statusCodes } from "../constants/enums/statusCodes.js";
+import { Tokens } from "../constants/enums/tokens.js";
 
 @injectable()
 export class AuthController implements IAuthController {

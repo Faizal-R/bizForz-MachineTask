@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
-import { TYPES } from "../../di/types";
-import { ITenantRepository } from "../../repositories/interfaces/tenant.repository.interface";
-import { ITenantService } from "../interfaces/tenant.service.interface";
+import { TYPES } from "../../di/types.js";
+import { ITenantRepository } from "../../repositories/interfaces/tenant.repository.interface.js";
+import { ITenantService } from "../interfaces/tenant.service.interface.js";
 
 @injectable()
 export class TenantService implements ITenantService {

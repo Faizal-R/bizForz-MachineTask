@@ -1,14 +1,14 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { EnvConfig } from "../config/env";
-import { Tokens } from "../constants/enums/tokens";
-import { CustomError } from "../utils/custom-error";
-import { statusCodes } from "../constants/enums/statusCodes";
-import { TokenPayload } from "../helpers/generateTokens";
-import { User } from "../model/user.model";
-import { PermissionName } from "../constants/permissions";
-import { IRole } from "model/role.model";
-import { IPermission } from "model/permission.model";
+import { EnvConfig } from "../config/env.js";
+import { Tokens } from "../constants/enums/tokens.js";
+import { CustomError } from "../utils/custom-error.js";
+import { statusCodes } from "../constants/enums/statusCodes.js";
+import { TokenPayload } from "../helpers/generateTokens.js";
+import { User } from "../model/user.model.js";
+import { PermissionName } from "../constants/permissions.js";
+import { IRole } from "../model/role.model.js";
+import { IPermission } from "../model/permission.model.js";
 
 const AUTH_REQUIRED_MESSAGE = "Please sign in to continue.";
 const SESSION_EXPIRED_MESSAGE = "Your session has expired. Please sign in again.";

@@ -1,12 +1,12 @@
 import { inject, injectable } from "inversify";
-import { TYPES } from "../../di/types";
-import { IProjectRepository } from "../../repositories/interfaces/project.repository.interface";
-import { IProjectService } from "../interfaces/project.service.interface";
+import { TYPES } from "../../di/types.js";
+import { IProjectRepository } from "../../repositories/interfaces/project.repository.interface.js";
+import { IProjectService } from "../interfaces/project.service.interface.js";
 import { Types } from "mongoose";
-import { ProjectMapper } from "../../mappers/project.mapper";
-import { ProjectResponseDTO, CreateProjectDTO, UpdateProjectDTO } from "../../dto/project.dto";
-import { CustomError } from "utils/custom-error";
-import { statusCodes } from "constants/enums/statusCodes";
+import { ProjectMapper } from "../../mappers/project.mapper.js";
+import { ProjectResponseDTO, CreateProjectDTO, UpdateProjectDTO } from "../../dto/project.dto.js";
+import { CustomError } from "../../utils/custom-error.js";
+import { statusCodes } from "../../constants/enums/statusCodes.js";
 
 @injectable()
 export class ProjectService implements IProjectService {

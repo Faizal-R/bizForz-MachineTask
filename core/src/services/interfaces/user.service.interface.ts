@@ -1,5 +1,5 @@
-import { IUser } from "../../model/user.model";
-import { UserResponseDTO, CreateUserDTO } from "../../dto/user.dto";
+import { IUser } from "../../model/user.model.js";
+import { UserResponseDTO, CreateUserDTO } from "../../dto/user.dto.js";
 
 export interface IUserService {
   getAllUsers(tenantId: string): Promise<UserResponseDTO[]>;

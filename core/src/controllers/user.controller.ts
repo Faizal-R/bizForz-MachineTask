@@ -1,11 +1,11 @@
 import { inject, injectable } from "inversify";
-import { IUserController } from "./interfaces/user.controller.interface";
-import { TYPES } from "di/types";
-import { IUserService } from "services/interfaces/user.service.interface";
+import { IUserController } from "./interfaces/user.controller.interface.js";
+import { TYPES } from "../di/types.js";
+import { IUserService } from "../services/interfaces/user.service.interface.js";
 import { Request, Response, RequestHandler } from "express";
-import { tryCatch } from "handlers/try-catch";
-import { createResponse } from "handlers/response-handler";
-import { statusCodes } from "constants/enums/statusCodes";
+import { tryCatch } from "../handlers/try-catch.js";
+import { createResponse } from "../handlers/response-handler.js";
+import { statusCodes } from "../constants/enums/statusCodes.js";
 
 @injectable()
 export class UserController implements IUserController {

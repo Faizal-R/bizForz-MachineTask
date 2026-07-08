@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
-import { BaseRepository } from "./base.repository";
-import { IProject, Project } from "../../model/project.model";
-import { IProjectRepository } from "../interfaces/project.repository.interface";
+import { BaseRepository } from "./base.repository.js";
+import { IProject, Project } from "../../model/project.model.js";
+import { IProjectRepository } from "../interfaces/project.repository.interface.js";
 import { Types } from "mongoose";
 
 @injectable()

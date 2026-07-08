@@ -1,5 +1,5 @@
-import { IRole } from "../../model/role.model";
-import { RoleResponseDTO, CreateRoleDTO, UpdateRoleDTO } from "../../dto/role.dto";
+import { IRole } from "../../model/role.model.js";
+import { RoleResponseDTO, CreateRoleDTO, UpdateRoleDTO } from "../../dto/role.dto.js";
 
 export interface IRoleService {
   getAllRoles(tenantId: string): Promise<RoleResponseDTO[]>;

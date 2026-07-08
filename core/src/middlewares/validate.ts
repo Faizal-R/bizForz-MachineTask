@@ -1,8 +1,8 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
-import { tryCatch } from "../handlers/try-catch";
+import { tryCatch } from "../handlers/try-catch.js";
 import { ZodSchema } from "zod";
-import { createResponse } from "../handlers/response-handler";
-import { statusCodes } from "../constants/enums/statusCodes";
+import { createResponse } from "../handlers/response-handler.js";
+import { statusCodes } from "../constants/enums/statusCodes.js";
 
 export const validate = (
   schema: ZodSchema,

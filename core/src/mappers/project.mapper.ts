@@ -1,5 +1,5 @@
-import { IProject } from "../model/project.model";
-import { ProjectResponseDTO } from "../dto/project.dto";
+import { IProject } from "../model/project.model.js";
+import { ProjectResponseDTO } from "../dto/project.dto.js";
 
 export class ProjectMapper {
   static toResponse(project: IProject): ProjectResponseDTO {

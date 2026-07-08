@@ -1,6 +1,6 @@
-import { ITenant } from "model/tenant.model";
-import { IUser } from "model/user.model";
-import { TenantDTO } from "./tenant.dto";
+import { ITenant } from "../model/tenant.model.js";
+import { IUser } from "../model/user.model.js";
+import { TenantDTO } from "./tenant.dto.js";
 
 export interface RegisterTenantDTO{
   companyName: string;

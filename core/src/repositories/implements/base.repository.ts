@@ -1,5 +1,5 @@
 import { Model, Document,QueryFilter, UpdateQuery } from "mongoose";
-import { IBaseRepository } from "../interfaces/base.repository.interface";
+import { IBaseRepository } from "../interfaces/base.repository.interface.js";
 import { injectable, unmanaged } from "inversify";
 
 @injectable()

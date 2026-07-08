@@ -1,5 +1,5 @@
-import { IProject } from "../../model/project.model";
-import { ProjectResponseDTO, CreateProjectDTO, UpdateProjectDTO } from "../../dto/project.dto";
+import { IProject } from "../../model/project.model.js";
+import { ProjectResponseDTO, CreateProjectDTO, UpdateProjectDTO } from "../../dto/project.dto.js";
 
 export interface IProjectService {
   getAllProjects(tenantId: string): Promise<ProjectResponseDTO[]>;

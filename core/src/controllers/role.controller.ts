@@ -1,11 +1,11 @@
 import { inject, injectable } from "inversify";
-import { IRoleController } from "./interfaces/role.controller.interface";
-import { TYPES } from "di/types";
-import { IRoleService } from "services/interfaces/role.service.interface";
+import { IRoleController } from "./interfaces/role.controller.interface.js";
+import { TYPES } from "../di/types.js";
+import { IRoleService } from "../services/interfaces/role.service.interface.js";
 import { Request, Response, RequestHandler } from "express";
-import { tryCatch } from "handlers/try-catch";
-import { createResponse } from "handlers/response-handler";
-import { statusCodes } from "constants/enums/statusCodes";
+import { tryCatch } from "../handlers/try-catch.js";
+import { createResponse } from "../handlers/response-handler.js";
+import { statusCodes } from "../constants/enums/statusCodes.js";
 
 @injectable()
 export class RoleController implements IRoleController {

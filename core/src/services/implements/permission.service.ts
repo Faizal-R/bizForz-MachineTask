@@ -1,11 +1,11 @@
 import { inject, injectable } from "inversify";
-import { TYPES } from "../../di/types";
-import { IPermissionRepository } from "../../repositories/interfaces/permission.repository.interface";
-import { IPermissionService } from "../interfaces/permission.service.interface";
-import { CustomError } from "utils/custom-error";
-import { statusCodes } from "constants/enums/statusCodes";
-import { PermissionsMapper } from "mappers/permissions.mapper";
-import { PermissionsDTO } from "dto/permissions.dto";
+import { TYPES } from "../../di/types.js";
+import { IPermissionRepository } from "../../repositories/interfaces/permission.repository.interface.js";
+import { IPermissionService } from "../interfaces/permission.service.interface.js";
+import { CustomError } from "../../utils/custom-error.js";
+import { statusCodes } from "../../constants/enums/statusCodes.js";
+import { PermissionsMapper } from "../../mappers/permissions.mapper.js";
+import { PermissionsDTO } from "../../dto/permissions.dto.js";
 import { Types } from "mongoose";
 
 @injectable()

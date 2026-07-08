@@ -1,9 +1,9 @@
 import { Router } from "express";
-import authRoutes from "./auth.routes";
-import roleRoutes from "./roles.routes";
-import projectRoutes from "./projects.routes";
-import userRoutes from "./user.routes";
-import permissionRoutes from "./permissions.routes";
+import authRoutes from "./auth.routes.js";
+import roleRoutes from "./roles.routes.js";
+import projectRoutes from "./projects.routes.js";
+import userRoutes from "./user.routes.js";
+import permissionRoutes from "./permissions.routes.js";
 
 const router: Router = Router();
 

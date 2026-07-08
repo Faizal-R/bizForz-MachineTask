@@ -1,13 +1,13 @@
 import { inject, injectable } from "inversify";
-import { TYPES } from "../../di/types";
-import { IRoleRepository } from "../../repositories/interfaces/role.repository.interface";
-import { IPermissionRepository } from "../../repositories/interfaces/permission.repository.interface";
-import { IRoleService } from "../interfaces/role.service.interface";
+import { TYPES } from "../../di/types.js";
+import { IRoleRepository } from "../../repositories/interfaces/role.repository.interface.js";
+import { IPermissionRepository } from "../../repositories/interfaces/permission.repository.interface.js";
+import { IRoleService } from "../interfaces/role.service.interface.js";
 import { Types } from "mongoose";
-import { RoleMapper } from "../../mappers/role.mapper";
-import { RoleResponseDTO, CreateRoleDTO, UpdateRoleDTO } from "../../dto/role.dto";
-import { CustomError } from "utils/custom-error";
-import { statusCodes } from "constants/enums/statusCodes";
+import { RoleMapper } from "../../mappers/role.mapper.js";
+import { RoleResponseDTO, CreateRoleDTO, UpdateRoleDTO } from "../../dto/role.dto.js";
+import { CustomError } from "../../utils/custom-error.js";
+import { statusCodes } from "../../constants/enums/statusCodes.js";
 
 @injectable()
 export class RoleService implements IRoleService {

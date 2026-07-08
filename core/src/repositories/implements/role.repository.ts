@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
-import { BaseRepository } from "./base.repository";
-import { IRole, Role } from "../../model/role.model";
-import { IRoleRepository } from "../interfaces/role.repository.interface";
+import { BaseRepository } from "./base.repository.js";
+import { IRole, Role } from "../../model/role.model.js";
+import { IRoleRepository } from "../interfaces/role.repository.interface.js";
 import { Types } from "mongoose";
 
 @injectable()

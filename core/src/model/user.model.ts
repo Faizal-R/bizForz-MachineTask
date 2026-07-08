@@ -1,7 +1,7 @@
 import { Schema, model, Document, Types } from "mongoose";
 import bcrypt from "bcryptjs";
-import { IRole } from "./role.model";
-import { IPermission } from "./permission.model";
+import { IRole } from "./role.model.js";
+import { IPermission } from "./permission.model.js";
 
 export interface IUser extends Document {
   tenantId: Types.ObjectId;
