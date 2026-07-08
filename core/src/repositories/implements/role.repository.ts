@@ -22,4 +22,11 @@ export class RoleRepository
       .populate("permissions")
       .exec();
   }
+
+  async findRolesByIds(ids: Types.ObjectId[]): Promise<IRole[]> {
+    return this.model
+      .find({ _id: { $in: ids } })
+      .populate("permissions")
+      .exec();
+  }
 }

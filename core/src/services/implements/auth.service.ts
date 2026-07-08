@@ -7,7 +7,7 @@ import { ITenantRepository } from "repositories/interfaces/tenant.repository.int
 import { IRoleRepository } from "repositories/interfaces/role.repository.interface";
 import { IPermissionRepository } from "repositories/interfaces/permission.repository.interface";
 import { slugify } from "helpers/slugify";
-import { hashPassword } from "utils/hash";
+import { comparePassword, hashPassword } from "utils/hash";
 import { CustomError } from "utils/custom-error";
 import { statusCodes } from "constants/enums/statusCodes";
 import { generateTokens } from "helpers/generateTokens";
@@ -34,19 +34,19 @@ export class AuthService implements IAuthService {
     if (existingUser) {
       throw new CustomError(
         "User email already exists. Please choose another email.",
-        statusCodes.BAD_REQUEST
+        statusCodes.BAD_REQUEST,
       );
     }
 
     // Create slug from company name
     const slug = slugify(companyName);
-    
+
     // Check if company (slug) is already registered
     const existingTenant = await this._tenantRepository.findOne({ slug });
     if (existingTenant) {
       throw new CustomError(
         "Company name is already registered.",
-        statusCodes.BAD_REQUEST
+        statusCodes.BAD_REQUEST,
       );
     }
 
@@ -93,7 +93,12 @@ export class AuthService implements IAuthService {
         userId: user._id.toString(),
       });
 
-      return AuthMapper.toResponse(user,[adminRole],accessToken,refreshToken)
+      return AuthMapper.toResponse(
+        user,
+        [adminRole],
+        accessToken,
+        refreshToken,
+      );
     } catch (error) {
       await this._tenantRepository.delete(tenant._id.toString());
       throw error;
@@ -101,7 +106,61 @@ export class AuthService implements IAuthService {
   }
 
   async signin(dto: SigninDTO): Promise<AuthResponseDTO> {
-    // To be implemented
-    throw new Error("Method not implemented.");
+    try {
+      const { email, password } = dto;
+
+      const existingUser = await this._userRepository.findOne({ email });
+
+      if (
+        !existingUser ||
+        !(await comparePassword(password!, existingUser.password!))
+      ) {
+        throw new CustomError(
+          "We couldn't find an account with that email, or the password was incorrect. Please try again.",
+          statusCodes.BAD_REQUEST,
+        );
+      }
+
+      if (existingUser.status !== "active") {
+        throw new CustomError(
+          "Your user account has been deactivated. Please contact your company administrator for assistance.",
+          statusCodes.FORBIDDEN,
+        );
+      }
+      const tenant = await this._tenantRepository.findById(
+        existingUser.tenantId.toString(),
+      );
+      if (!tenant || tenant.status !== "active") {
+        throw new CustomError(
+          "Your organization's account is currently suspended or inactive. Please contact system support.",
+          statusCodes.FORBIDDEN,
+        );
+      }
+
+      const roles = await this._roleRepository.findRolesByIds(
+        existingUser.roles,
+      );
+
+      const roleNames = roles.map((r) => r.name);
+
+      const accessToken = generateTokens.accessToken({
+        userId: existingUser._id.toString(),
+        tenantId: existingUser.tenantId.toString(),
+        roles: roleNames,
+      });
+
+      const refreshToken = generateTokens.refreshToken({
+        userId: existingUser._id.toString(),
+      });
+
+      return AuthMapper.toResponse(
+        existingUser,
+        roles,
+        accessToken,
+        refreshToken,
+      );
+    } catch (error) {
+      throw error;
+    }
   }
 }

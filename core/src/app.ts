@@ -1,6 +1,6 @@
 import express, { Application } from "express";
 import cors from "cors";
-// import router from "./routes/routes";
+import router from "./routes";
 import dotenv from "dotenv";
 import { errorMiddleware } from "./middlewares/error.middleware";
 import helmet from "helmet";
@@ -26,7 +26,7 @@ app.use(
 
 app.use(helmet());
 
-// app.use('/api',router)
+app.use('/api',router)
 
 //  Health Check Route
 app.get("/health", (req, res) => {

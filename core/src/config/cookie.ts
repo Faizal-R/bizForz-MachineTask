@@ -6,7 +6,6 @@ export const accesCookieConfig: CookieOptions = {
   httpOnly: true,
   secure: true,
   sameSite: "strict",
-  domain: EnvConfig.FRONTEND_URL,
 };
 
 export const refreshCookieConfig: CookieOptions = {
@@ -14,5 +13,4 @@ export const refreshCookieConfig: CookieOptions = {
   httpOnly: true,
   secure: true,
   sameSite: "strict",
-  domain: EnvConfig.FRONTEND_URL,
 };

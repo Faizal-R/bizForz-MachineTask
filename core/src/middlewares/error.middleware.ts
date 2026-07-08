@@ -5,7 +5,7 @@ export const errorMiddleware = (
   err: any,
   _req: Request,
   res: Response,
-  next: NextFunction,
+  _next: NextFunction,
 ) => {
   errorResponse(res, err);
 };

@@ -18,8 +18,8 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T> {
     return this.model.findOne(filter).exec();
   }
 
-  async find(filter: QueryFilter<T>): Promise<T[]> {
-    return this.model.find(filter).exec();
+  async find(filter?: QueryFilter<T>): Promise<T[]> {
+    return this.model.find(filter || {}).exec();
   }
 
   async update(id: string, update: UpdateQuery<T>): Promise<T | null> {

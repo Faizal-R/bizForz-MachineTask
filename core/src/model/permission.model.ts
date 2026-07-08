@@ -3,7 +3,7 @@ import { Schema, model, Document, Types } from "mongoose";
 export interface IPermission extends Document {
   tenantId: Types.ObjectId | null;
   name: string; 
-  description?: string;
+  description: string;
   category: string; 
   createdAt: Date;
   updatedAt: Date;
