@@ -46,7 +46,8 @@ export class UserController implements IUserController {
       const tenantId = req.user!.tenantId;
       const { userId } = req.params;
       const { roles } = req.body;
-      const user = await this._userService.updateUserRole(userId as string, tenantId, roles);
+      const requesterId = req.user!.userId;
+      const user = await this._userService.updateUserRole(userId as string, tenantId, roles, requesterId);
       if (!user) {
         return createResponse(
           res,
@@ -71,7 +72,8 @@ export class UserController implements IUserController {
       const tenantId = req.user!.tenantId;
       const { userId } = req.params;
       const { permissions } = req.body;
-      const user = await this._userService.updateUserPermissions(userId as string, tenantId, permissions);
+      const requesterId = req.user!.userId;
+      const user = await this._userService.updateUserPermissions(userId as string, tenantId, permissions, requesterId);
       if (!user) {
         return createResponse(
           res,

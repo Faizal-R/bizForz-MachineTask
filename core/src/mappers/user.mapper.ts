@@ -8,7 +8,9 @@ export class UserMapper {
       name: user.name,
       email: user.email,
       roles: user.roles?.map((role: any) => role.name ? role.name : role),
-      customPermissions: user.customPermissions,
+      customPermissions: user.customPermissions?.map((permission: any) =>
+        permission.name ? permission.name : permission.toString()
+      ),
       status: user.status,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,

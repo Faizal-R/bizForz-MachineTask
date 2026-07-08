@@ -34,10 +34,16 @@ export class UserService implements IUserService {
 
   async createUser(tenantId: string, userData: CreateUserDTO): Promise<UserResponseDTO> {
     try {
-      const hashedPassword = await hashPassword(userData.password!);
-      
       // Resolve the role ID by role name
       const roleName = userData.roles && userData.roles.length > 0 ? userData.roles[0] : "Employee";
+      if (this.isAdminRoleName(roleName)) {
+        throw new CustomError(
+          "Admin users cannot be created from user management",
+          statusCodes.FORBIDDEN,
+        );
+      }
+
+      const hashedPassword = await hashPassword(userData.password!);
 
       // Check if user with email already exists in tenant
       const existingUser = await this._userRepository.findByEmailAndTenant(userData.email, tenantId);
@@ -77,14 +83,41 @@ export class UserService implements IUserService {
     }
   }
 
-  async updateUserRole(userId: string, tenantId: string, roleNames: string[]): Promise<UserResponseDTO | null> {
+  async updateUserRole(userId: string, tenantId: string, roleNames: string[], requesterId?: string): Promise<UserResponseDTO | null> {
     try {
+      // Prevent self-modification
+      if (requesterId && requesterId === userId) {
+        throw new CustomError(
+          "You cannot modify your own role",
+          statusCodes.FORBIDDEN,
+        );
+      }
+
       // Verify user belongs to tenant
       const user = await this._userRepository.findOne({ _id: userId, tenantId } as any);
       if (!user) {
         throw new CustomError(
           "User not found or does not belong to this tenant",
           statusCodes.NOT_FOUND,
+        );
+      }
+
+      // Admin users and assignments are reserved outside user management.
+      const currentUserRoles = await this._roleRepository.findRolesByIds(user.roles as Types.ObjectId[]);
+      const isTargetAdmin = currentUserRoles.some((r: any) => this.isAdminRoleName(r.name));
+      const hasAdminRole = roleNames.some((roleName) => this.isAdminRoleName(roleName));
+
+      if (isTargetAdmin) {
+        throw new CustomError(
+          "Admin users cannot be modified from user management",
+          statusCodes.FORBIDDEN,
+        );
+      }
+
+      if (hasAdminRole) {
+        throw new CustomError(
+          "Admin role cannot be assigned from user management",
+          statusCodes.FORBIDDEN,
         );
       }
 
@@ -120,8 +153,16 @@ export class UserService implements IUserService {
     }
   }
 
-  async updateUserPermissions(userId: string, tenantId: string, permissionNames: string[]): Promise<UserResponseDTO | null> {
+  async updateUserPermissions(userId: string, tenantId: string, permissionNames: string[], requesterId?: string): Promise<UserResponseDTO | null> {
     try {
+      // Prevent self-modification
+      if (requesterId && requesterId === userId) {
+        throw new CustomError(
+          "You cannot modify your own permissions",
+          statusCodes.FORBIDDEN,
+        );
+      }
+
       // Verify user belongs to tenant
       const user = await this._userRepository.findOne({ _id: userId, tenantId } as any);
       if (!user) {
@@ -129,6 +170,36 @@ export class UserService implements IUserService {
           "User not found or does not belong to this tenant",
           statusCodes.NOT_FOUND,
         );
+      }
+
+      const targetRoles = await this._roleRepository.findRolesByIds(user.roles as Types.ObjectId[]);
+      if (targetRoles.some((role: any) => this.isAdminRoleName(role.name))) {
+        throw new CustomError(
+          "Admin permission overrides cannot be modified from user management",
+          statusCodes.FORBIDDEN,
+        );
+      }
+
+      // Validate that requester has all permissions they're trying to grant
+      if (requesterId) {
+        const requester = await this._userRepository.findOne({ _id: requesterId, tenantId } as any);
+        if (requester) {
+          const requesterRoles = await this._roleRepository.findRolesByIds(requester.roles as Types.ObjectId[]);
+          const requesterCustomPerms = await this._permissionRepository.find({ _id: { $in: requester.customPermissions } } as any);
+          
+          const requesterPermissions = [
+            ...requesterRoles.flatMap((r: any) => (r.permissions as any[])?.map((p: any) => p.name) || []),
+            ...(requesterCustomPerms?.map((p: any) => p.name) || [])
+          ];
+          
+          const unauthorizedPerms = permissionNames.filter(p => !requesterPermissions.includes(p));
+          if (unauthorizedPerms.length > 0) {
+            throw new CustomError(
+              `Cannot grant permissions you don't have: ${unauthorizedPerms.join(", ")}`,
+              statusCodes.FORBIDDEN,
+            );
+          }
+        }
       }
 
       // Resolve permission IDs (can be tenant-scoped or global/null tenantId)
@@ -157,5 +228,9 @@ export class UserService implements IUserService {
         statusCodes.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  private isAdminRoleName(roleName?: string): boolean {
+    return roleName?.trim().toLowerCase() === "admin";
   }
 }

@@ -139,17 +139,12 @@ const Dashboard: React.FC = () => {
               {activeTab === "roles" && "Define system roles and access lists"}
             </p>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="bg-primary-main/10 text-primary-main border border-primary-main/20 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
-              Tenant ID: {user.tenantId?.substring(0, 8)}...
-            </span>
-          </div>
         </header>
 
         {/* Content Body */}
         <main className="p-8 flex-grow">
           {activeTab === "projects" && <ProjectsView hasPermission={hasPermission} />}
-          {activeTab === "users" && <UsersView hasPermission={hasPermission} />}
+          {activeTab === "users" && <UsersView hasPermission={hasPermission} currentUserId={user.id} />}
           {activeTab === "roles" && <RolesView hasPermission={hasPermission} />}
         </main>
       </div>

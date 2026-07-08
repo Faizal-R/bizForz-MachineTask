@@ -19,6 +19,9 @@ const AVAILABLE_PERMISSIONS = [
   "read:permissions"
 ];
 
+const isReservedAdminRoleName = (roleName: string) => roleName.trim().toLowerCase() === "admin";
+const isReservedAdminRole = (role: IRoleRecord) => isReservedAdminRoleName(role.name);
+
 const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
   const [roles, setRoles] = useState<IRoleRecord[]>([]);
 
@@ -26,6 +29,7 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
   const [editingRole, setEditingRole] = useState<IRoleRecord | null>(null);
   const [formState, setFormState] = useState({ name: "", description: "", permissions: [] as string[] });
   const { getAllRoles, createRole, updateRole, deleteRole } = useRoles();
+  const visibleRoles = roles.filter((role) => !isReservedAdminRole(role));
 
   useEffect(() => {
     const fetchRoles = async () => {
@@ -48,6 +52,7 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
   };
 
   const handleOpenEdit = (role: IRoleRecord) => {
+    if (isReservedAdminRole(role)) return;
     setEditingRole(role);
     setFormState({ name: role.name, description: role.description, permissions: [...role.permissions] });
     setShowModal(true);
@@ -62,6 +67,9 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isReservedAdminRoleName(formState.name)) {
+      return;
+    }
     if (editingRole) {
       try {
         await updateRole(editingRole.id, {
@@ -116,7 +124,7 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
       {/* Action Header */}
       <div className="flex justify-between items-center bg-[#110e1a] p-6 rounded-2xl border border-neutral-800">
         <div className="text-sm text-gray-400">
-          Displaying <span className="text-white font-bold">{roles.length}</span> workspace roles.
+          Displaying <span className="text-white font-bold">{visibleRoles.length}</span> workspace roles.
         </div>
 
         {hasPermission("create:roles") ? (
@@ -137,7 +145,7 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
       </div>
 
       {/* Grid of Roles or Empty State */}
-      {roles.length === 0 ? (
+      {visibleRoles.length === 0 ? (
         <div className="p-16 text-center flex flex-col items-center justify-center space-y-4 bg-[#110e1a] border border-neutral-800 rounded-2xl">
           <div className="w-16 h-16 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-gray-500">
             <svg className="w-8 h-8 text-primary-main/70" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
@@ -159,7 +167,7 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {roles.map((role) => (
+          {visibleRoles.map((role) => (
             <div
               key={role.id}
               className="bg-[#110e1a]/60 hover:bg-[#110e1a] p-6 rounded-2xl border border-neutral-800 hover:border-neutral-700 transition-all flex flex-col justify-between group"

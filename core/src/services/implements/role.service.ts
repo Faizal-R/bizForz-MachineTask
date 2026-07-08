@@ -19,7 +19,9 @@ export class RoleService implements IRoleService {
   async getAllRoles(tenantId: string): Promise<RoleResponseDTO[]> {
     try {
       const roles = await this._roleRepository.findTenantRoles(tenantId);
-      return roles.map(role => RoleMapper.toResponse(role));
+      return roles
+        .filter(role => !this.isAdminRoleName(role.name))
+        .map(role => RoleMapper.toResponse(role));
     } catch (error) {
       if (error instanceof CustomError) throw error;
       throw new CustomError(
@@ -31,6 +33,13 @@ export class RoleService implements IRoleService {
 
   async createRole(tenantId: string, roleData: CreateRoleDTO): Promise<RoleResponseDTO> {
     try {
+      if (this.isAdminRoleName(roleData.name)) {
+        throw new CustomError(
+          "Admin role is reserved and cannot be created",
+          statusCodes.FORBIDDEN,
+        );
+      }
+
       const permissions = await this._permissionRepository.find({
         name: { $in: roleData.permissions || [] },
         $or: [
@@ -65,6 +74,13 @@ export class RoleService implements IRoleService {
         throw new CustomError(
           "Role not found or does not belong to this tenant",
           statusCodes.NOT_FOUND,
+        );
+      }
+
+      if (this.isAdminRoleName(role.name) || this.isAdminRoleName(roleData.name)) {
+        throw new CustomError(
+          "Admin role is reserved and cannot be modified",
+          statusCodes.FORBIDDEN,
         );
       }
 
@@ -109,6 +125,12 @@ export class RoleService implements IRoleService {
           statusCodes.NOT_FOUND,
         );
       }
+      if (this.isAdminRoleName(role.name)) {
+        throw new CustomError(
+          "Admin role is reserved and cannot be deleted",
+          statusCodes.FORBIDDEN,
+        );
+      }
       return this._roleRepository.delete(roleId);
     } catch (error) {
       if (error instanceof CustomError) throw error;
@@ -117,5 +139,9 @@ export class RoleService implements IRoleService {
         statusCodes.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  private isAdminRoleName(roleName?: string): boolean {
+    return roleName?.trim().toLowerCase() === "admin";
   }
 }

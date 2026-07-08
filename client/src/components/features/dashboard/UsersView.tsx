@@ -7,7 +7,13 @@ interface IUserRecord {
   name: string;
   email: string;
   roles: string[];
-  customPermissions: string[];
+  customPermissions: Array<string | { name?: string }>;
+}
+
+interface IRoleRecord {
+  id: string;
+  name: string;
+  permissions: Array<string | { name?: string }>;
 }
 
 interface CreateUserPayload {
@@ -21,6 +27,7 @@ interface CreateUserPayload {
 
 interface UsersViewProps {
   hasPermission: (perm: string) => boolean;
+  currentUserId?: string;
 }
 
 const AVAILABLE_PERMISSIONS = [
@@ -30,9 +37,23 @@ const AVAILABLE_PERMISSIONS = [
   "read:permissions"
 ];
 
-const UsersView: React.FC<UsersViewProps> = ({ hasPermission }) => {
+const getRoleName = (role: string | { name?: string }) =>
+  role && typeof role === "object" ? role.name : role;
+
+const isAdminRoleName = (roleName?: string) => roleName?.trim().toLowerCase() === "admin";
+
+const hasAdminRole = (roles: IUserRecord["roles"]) =>
+  roles.some((role: any) => isAdminRoleName(getRoleName(role)));
+
+const getPermissionName = (permission: string | { name?: string }) =>
+  permission && typeof permission === "object" ? permission.name : permission;
+
+const getPermissionNames = (permissions: IUserRecord["customPermissions"]) =>
+  permissions.map(getPermissionName).filter(Boolean) as string[];
+
+const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) => {
   const [users, setUsers] = useState<IUserRecord[]>([]);
-  const [availableRoles, setAvailableRoles] = useState<{ id: string; name: string }[]>([]);
+  const [availableRoles, setAvailableRoles] = useState<IRoleRecord[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
@@ -42,6 +63,16 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission }) => {
   const [showPassword, setShowPassword] = useState(false);
   const { getAllUsers, createUser, updateUserPermissions, updateUserRole } = useUsers();
   const { getAllRoles } = useRoles();
+  const assignableRoles = availableRoles.filter((role) => !isAdminRoleName(role.name));
+  const defaultRole = assignableRoles[0]?.name || "Employee";
+  const getRolePermissionNames = (user: IUserRecord) => {
+    const userRoleNames = user.roles.map((role: any) => getRoleName(role));
+    return Array.from(new Set(
+      availableRoles
+        .filter((role) => userRoleNames.includes(role.name))
+        .flatMap((role) => role.permissions.map(getPermissionName).filter(Boolean) as string[])
+    ));
+  };
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -59,8 +90,9 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission }) => {
         const res = await getAllRoles();
         const rolesList = res && res.data ? res.data : (Array.isArray(res) ? res : []);
         setAvailableRoles(rolesList);
-        if (rolesList.length > 0) {
-          setNewUser(prev => ({ ...prev, role: rolesList[0].name }));
+        const firstAssignableRole = rolesList.find((role: { name: string }) => !isAdminRoleName(role.name));
+        if (firstAssignableRole) {
+          setNewUser(prev => ({ ...prev, role: firstAssignableRole.name }));
         }
       } catch (err) {
         console.warn("Failed fetching roles", err);
@@ -72,6 +104,9 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission }) => {
 
   const handleSaveUser = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isAdminRoleName(newUser.role)) {
+      return;
+    }
     if (modalMode === "add") {
       const createdUser: CreateUserPayload = {
         id: String(Date.now()),
@@ -110,11 +145,12 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission }) => {
       }
     }
     setShowModal(false);
-    setNewUser({ name: "", email: "", password: "", role: "Employee" });
+    setNewUser({ name: "", email: "", password: "", role: defaultRole });
     setEditingUserId(null);
   };
 
   const handleEditClick = (user: IUserRecord) => {
+    if (hasAdminRole(user.roles)) return;
     setModalMode("edit");
     setEditingUserId(user.id);
     const roleVal = user.roles[0];
@@ -123,23 +159,29 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission }) => {
       name: user.name,
       email: user.email,
       password: "", // Password typically isn't updated here
-      role: roleName || "Employee"
+      role: isAdminRoleName(roleName) ? defaultRole : roleName || defaultRole
     });
     setShowModal(true);
   };
 
   const handleOpenPermissions = (user: IUserRecord) => {
-    setSelectedUser(user);
+    if (hasAdminRole(user.roles)) return;
+    setSelectedUser({
+      ...user,
+      customPermissions: getPermissionNames(user.customPermissions),
+    });
     setShowOverrideModal(true);
   };
 
   const handleTogglePermission = async (perm: string) => {
     if (!selectedUser) return;
+    if (getRolePermissionNames(selectedUser).includes(perm)) return;
     
-    const isGranted = selectedUser.customPermissions.includes(perm);
+    const currentPermissions = getPermissionNames(selectedUser.customPermissions);
+    const isGranted = currentPermissions.includes(perm);
     const updatedPerms = isGranted
-      ? selectedUser.customPermissions.filter(p => p !== perm)
-      : [...selectedUser.customPermissions, perm];
+      ? currentPermissions.filter(p => p !== perm)
+      : [...currentPermissions, perm];
 
     const updatedUser = { ...selectedUser, customPermissions: updatedPerms };
     setSelectedUser(updatedUser);
@@ -166,7 +208,7 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission }) => {
             onClick={() => {
               setModalMode("add");
               setEditingUserId(null);
-              setNewUser({ name: "", email: "", password: "", role: "Employee" });
+              setNewUser({ name: "", email: "", password: "", role: defaultRole });
               setShowModal(true);
             }}
             className="bg-primary-main text-secondary-dark px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md shadow-primary-main/20"
@@ -201,7 +243,7 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission }) => {
                 onClick={() => {
                   setModalMode("add");
                   setEditingUserId(null);
-                  setNewUser({ name: "", email: "", password: "", role: "Employee" });
+                  setNewUser({ name: "", email: "", password: "", role: defaultRole });
                   setShowModal(true);
                 }}
                 className="bg-primary-main hover:bg-primary-light text-secondary-dark px-5 py-2.5 rounded-xl font-bold text-xs transition-all shadow-md shadow-primary-main/10"
@@ -223,60 +265,71 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission }) => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-800/60">
-                {users.map((u) => (
-                  <tr key={u.id} className="hover:bg-[#1c1926]/20 transition-colors text-sm">
-                    <td className="p-5 font-semibold text-white flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-primary-main/15 text-primary-main flex items-center justify-center font-bold border border-primary-main/25">
-                        {u.name.charAt(0).toUpperCase()}
-                      </div>
-                      {u.name}
-                    </td>
-                    <td className="p-5 text-gray-400">{u.email}</td>
-                    <td className="p-5">
-                      {u.roles.map((r: any, i) => {
-                        const roleName = r && typeof r === "object" ? r.name : r;
-                        return (
-                          <span key={i} className={`text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full border ${
-                            roleName === "Admin"
-                              ? "bg-red-950/40 text-red-400 border-red-950/50"
-                              : roleName === "Manager"
-                              ? "bg-blue-950/40 text-blue-400 border-blue-950/50"
-                              : "bg-neutral-800 text-gray-400 border-neutral-700"
-                          }`}>
-                            {roleName}
+                {users.map((u) => {
+                  const isCurrentUser = currentUserId && u.id === currentUserId;
+                  const isAdmin = hasAdminRole(u.roles);
+
+                  return (
+                    <tr key={u.id} className="hover:bg-[#1c1926]/20 transition-colors text-sm">
+                      <td className="p-5 font-semibold text-white flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-primary-main/15 text-primary-main flex items-center justify-center font-bold border border-primary-main/25">
+                          {u.name.charAt(0).toUpperCase()}
+                        </div>
+                        {u.name}
+                      </td>
+                      <td className="p-5 text-gray-400">{u.email}</td>
+                      <td className="p-5">
+                        {u.roles.map((r: any, i) => {
+                          const roleName = getRoleName(r);
+                          return (
+                            <span key={i} className={`text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full border ${
+                              isAdminRoleName(roleName)
+                                ? "bg-red-950/40 text-red-400 border-red-950/50"
+                                : roleName === "Manager"
+                                ? "bg-blue-950/40 text-blue-400 border-blue-950/50"
+                                : "bg-neutral-800 text-gray-400 border-neutral-700"
+                            }`}>
+                              {roleName}
+                            </span>
+                          );
+                        })}
+                      </td>
+                      <td className="p-5">
+                        {u.customPermissions.length > 0 ? (
+                          <span className="text-[10px] font-bold bg-primary-main/10 text-primary-main border border-primary-main/20 px-2 py-0.5 rounded">
+                            +{u.customPermissions.length} custom permissions
                           </span>
-                        );
-                      })}
-                    </td>
-                    <td className="p-5">
-                      {u.customPermissions.length > 0 ? (
-                        <span className="text-[10px] font-bold bg-primary-main/10 text-primary-main border border-primary-main/20 px-2 py-0.5 rounded">
-                          +{u.customPermissions.length} custom permissions
-                        </span>
-                      ) : (
-                        <span className="text-xs text-gray-600 font-medium">None</span>
-                      )}
-                    </td>
-                    <td className="p-5 text-right flex items-center justify-end gap-3 h-full">
-                      {hasPermission("update:users") && (
-                        <button
-                          onClick={() => handleEditClick(u)}
-                          className="text-xs font-bold text-gray-400 hover:text-white transition-colors"
-                        >
-                          Edit Member
-                        </button>
-                      )}
-                      {hasPermission("update:users") && (
-                        <button
-                          onClick={() => handleOpenPermissions(u)}
-                          className="text-xs font-bold text-primary-main hover:text-primary-light transition-colors"
-                        >
-                          Adjust Overrides
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                        ) : (
+                          <span className="text-xs text-gray-600 font-medium">None</span>
+                        )}
+                      </td>
+                      <td className="p-5 text-right flex items-center justify-end gap-3 h-full">
+                        {hasPermission("update:users") && !isCurrentUser && !isAdmin && (
+                          <>
+                            <button
+                              onClick={() => handleEditClick(u)}
+                              className="text-xs font-bold text-gray-400 hover:text-white transition-colors"
+                            >
+                              Edit Member
+                            </button>
+                            <button
+                              onClick={() => handleOpenPermissions(u)}
+                              className="text-xs font-bold text-primary-main hover:text-primary-light transition-colors"
+                            >
+                              Adjust Overrides
+                            </button>
+                          </>
+                        )}
+                        {isCurrentUser && (
+                          <span className="text-xs text-gray-500 italic">Current User</span>
+                        )}
+                        {isAdmin && !isCurrentUser && (
+                          <span className="text-xs text-gray-500 italic">Admin (Read Only)</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -352,13 +405,13 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission }) => {
 
               <div className="space-y-1">
                 <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">System Role</label>
-                {availableRoles.length > 0 ? (
+                {assignableRoles.length > 0 ? (
                   <select
                     value={newUser.role}
                     onChange={e => setNewUser({ ...newUser, role: e.target.value })}
                     className="w-full px-4 py-3 bg-[#08060d] text-white rounded-lg border border-neutral-800 text-sm outline-none focus:border-primary-main"
                   >
-                    {availableRoles.map(role => (
+                    {assignableRoles.map(role => (
                       <option key={role.id} value={role.name}>{role.name}</option>
                     ))}
                   </select>
@@ -379,9 +432,9 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission }) => {
                 </button>
                 <button
                   type="submit"
-                  disabled={modalMode === "add" && availableRoles.length === 0}
+                  disabled={modalMode === "add" && assignableRoles.length === 0}
                   className={`w-2/3 py-3 rounded-lg border-none font-black text-sm uppercase tracking-wide cursor-pointer transition-all ${
-                    modalMode === "add" && availableRoles.length === 0
+                    modalMode === "add" && assignableRoles.length === 0
                       ? "bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-50"
                       : "bg-primary-main hover:bg-primary-light text-secondary-dark"
                   }`}
@@ -405,13 +458,19 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission }) => {
 
             <div className="grid grid-cols-2 gap-3 mb-6">
               {AVAILABLE_PERMISSIONS.map(perm => {
-                const checked = selectedUser.customPermissions.includes(perm);
+                const roleAssigned = getRolePermissionNames(selectedUser).includes(perm);
+                const customAssigned = getPermissionNames(selectedUser.customPermissions).includes(perm);
+                const checked = roleAssigned || customAssigned;
                 return (
                   <label
                     key={perm}
-                    onClick={() => handleTogglePermission(perm)}
+                    onClick={() => {
+                      if (!roleAssigned) handleTogglePermission(perm);
+                    }}
                     className={`flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer select-none transition-all duration-200 ${
-                      checked
+                      roleAssigned
+                        ? "bg-neutral-900/80 border-neutral-700 text-gray-300 cursor-not-allowed opacity-80"
+                        : checked
                         ? "bg-primary-main/10 border-primary-main text-white"
                         : "bg-[#08060d]/50 border-neutral-800 text-gray-500 hover:border-neutral-700 hover:text-gray-300"
                     }`}
@@ -426,6 +485,9 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission }) => {
                       )}
                     </div>
                     <span className="text-xs font-bold font-mono">{perm}</span>
+                    {roleAssigned && (
+                      <span className="ml-auto text-[9px] font-black uppercase tracking-wider text-gray-500">Role</span>
+                    )}
                   </label>
                 );
               })}
