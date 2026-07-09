@@ -10,11 +10,11 @@ export interface TokenPayload {
 export const generateTokens = {
   accessToken(payload: TokenPayload): string {
     return jwt.sign(payload, EnvConfig.ACCESS_TOKEN_SECRET, {
-      expiresIn: "15m",
+      expiresIn: "1m",
     });
   },
 
-  refreshToken(payload: { userId: string }): string {
+  refreshToken(payload: { userId: string}): string {
     return jwt.sign(payload, EnvConfig.REFRESH_TOKEN_SECRET, {
       expiresIn: "7d",
     });

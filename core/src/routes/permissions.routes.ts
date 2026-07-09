@@ -6,10 +6,16 @@ import { TYPES } from "../di/types.js";
 import { Permissions } from "../constants/permissions.js";
 
 const router: Router = Router();
-const permissionController = resolve<IPermissionController>(TYPES.PermissionController);
+const permissionController = resolve<IPermissionController>(
+  TYPES.PermissionController,
+);
 
 router.use(protect);
 
-router.get("/", authorize(Permissions.Permissions.READ), permissionController.getAllPermissions);
+router.get(
+  "/",
+  authorize(Permissions.Permissions.READ),
+  permissionController.getAllPermissions,
+);
 
 export default router;

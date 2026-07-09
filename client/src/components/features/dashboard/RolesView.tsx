@@ -254,7 +254,7 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
                 <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">Role Title</label>
                 <input
                   type="text"
-                  required
+                  
                   placeholder="e.g. Lead Developer"
                   value={formState.name}
                   onChange={(e) => setFormState({ ...formState, name: e.target.value })}

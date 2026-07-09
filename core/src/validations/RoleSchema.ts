@@ -1,10 +1,10 @@
 import { z } from "zod";
 
-const permissionsSchema = z.array(
-  z.string().trim().min(1, "Permissions cannot contain empty values"),
-);
+const permissionsSchema = z
+  .array(z.string().trim().min(1, "Permissions cannot contain empty values"))
+  .min(1, "The role should at least have 1 permissions");
 
-export const createRoleSchema = z.object({
+export const createAndUpdateRoleSchema = z.object({
   name: z
     .string()
     .trim()
@@ -13,26 +13,9 @@ export const createRoleSchema = z.object({
   description: z
     .string()
     .trim()
-    .max(250, "Description must be less than 250 characters")
-    .optional(),
+    .min(1, "Description must be at least 10 characters")
+    .max(250, "Description must be less than 250 characters"),
   permissions: permissionsSchema.default([]),
 });
 
-export const updateRoleSchema = z
-  .object({
-    name: z
-      .string()
-      .trim()
-      .min(2, "Role name must be at least 2 characters")
-      .max(50, "Role name must be less than 50 characters")
-      .optional(),
-    description: z
-      .string()
-      .trim()
-      .max(250, "Description must be less than 250 characters")
-      .optional(),
-    permissions: permissionsSchema.optional(),
-  })
-  .refine((data) => Object.keys(data).length > 0, {
-    message: "At least one role field is required",
-  });
+

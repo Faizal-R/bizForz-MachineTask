@@ -43,8 +43,12 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
   async findByIdWithRelations(userId: string): Promise<IUser | null> {
     return this.model
       .findById(userId)
-      .populate("roles")
+      .populate({
+        path: "roles",
+        populate: { path: "permissions" },
+      })
       .populate("customPermissions")
       .exec();
   }
+
 }

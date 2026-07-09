@@ -9,11 +9,12 @@ import { User } from "../model/user.model.js";
 import { PermissionName } from "../constants/permissions.js";
 import { IRole } from "../model/role.model.js";
 import { IPermission } from "../model/permission.model.js";
+import { refreshSession } from "helpers/refreshSession.js";
+import { AuthMessage } from "constants/messages/auth.messages.js";
+import { resolve } from "di/index.js";
+import { TYPES } from "di/types.js";
 
-const AUTH_REQUIRED_MESSAGE = "Please sign in to continue.";
-const SESSION_EXPIRED_MESSAGE = "Your session has expired. Please sign in again.";
-const ACCOUNT_UNAVAILABLE_MESSAGE = "Your account is no longer active or available. Please contact your administrator.";
-const PERMISSION_DENIED_MESSAGE = "You do not have access to perform this action. Please contact your administrator if you need access.";
+
 
 declare global {
   namespace Express {
@@ -24,18 +25,12 @@ declare global {
   }
 }
 
-export const protect = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  const token =
-    req.cookies?.[Tokens.ACCESS_TOKEN]
+export const protect = (req: Request, res: Response, next: NextFunction) => {
+  const token = req.cookies?.[Tokens.ACCESS_TOKEN];
+  console.log("Token",token)
 
   if (!token) {
-    return next(
-      new CustomError(AUTH_REQUIRED_MESSAGE, statusCodes.UNAUTHORIZED),
-    );
+   return refreshSession(req, res, next);
   }
 
   try {
@@ -43,13 +38,12 @@ export const protect = (
       token,
       EnvConfig.ACCESS_TOKEN_SECRET,
     ) as TokenPayload;
-    
+
     req.user = decoded;
     next();
   } catch (error) {
-    return next(
-      new CustomError(SESSION_EXPIRED_MESSAGE, statusCodes.UNAUTHORIZED),
-    );
+    
+    return refreshSession(req, res, next);
   }
 };
 
@@ -58,10 +52,9 @@ export const authorize = (...requiredPermissions: PermissionName[]) => {
     try {
       if (!req.user) {
         return next(
-          new CustomError(AUTH_REQUIRED_MESSAGE, statusCodes.UNAUTHORIZED),
+          new CustomError(AuthMessage.AUTH_REQUIRED_MESSAGE, statusCodes.UNAUTHORIZED),
         );
       }
-
       const user = await User.findOne({
         _id: req.user.userId,
         tenantId: req.user.tenantId,
@@ -76,12 +69,17 @@ export const authorize = (...requiredPermissions: PermissionName[]) => {
 
       if (!user) {
         return next(
-          new CustomError(ACCOUNT_UNAVAILABLE_MESSAGE, statusCodes.UNAUTHORIZED),
+          new CustomError(
+            AuthMessage.ACCOUNT_UNAVAILABLE_MESSAGE,
+            statusCodes.UNAUTHORIZED,
+          ),
         );
       }
 
       const rolePermissions = (user.roles as IRole[]).flatMap((role) =>
-        (role.permissions as IPermission[] || []).map((permission: IPermission) => permission.name),
+        ((role.permissions as IPermission[]) || []).map(
+          (permission: IPermission) => permission.name,
+        ),
       );
       const customPermissions = (user.customPermissions as IPermission[]).map(
         (permission) => permission.name,
@@ -98,10 +96,7 @@ export const authorize = (...requiredPermissions: PermissionName[]) => {
 
       if (!hasRequiredPermission) {
         return next(
-          new CustomError(
-            PERMISSION_DENIED_MESSAGE,
-            statusCodes.FORBIDDEN,
-          ),
+          new CustomError(AuthMessage.PERMISSION_DENIED_MESSAGE, statusCodes.FORBIDDEN),
         );
       }
 

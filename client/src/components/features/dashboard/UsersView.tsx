@@ -440,7 +440,7 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
                 <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">Full Name</label>
                 <input
                   type="text"
-                  required
+                  
                   value={newUser.name}
                   onChange={e => setNewUser({ ...newUser, name: e.target.value })}
                   placeholder="e.g. Alice Smith"
@@ -452,7 +452,7 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
                 <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">Email Address</label>
                 <input
                   type="email"
-                  required
+                  
                   disabled={modalMode === "edit"}
                   value={newUser.email}
                   onChange={e => setNewUser({ ...newUser, email: e.target.value })}
@@ -469,7 +469,7 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
-                      required
+                      
                       value={newUser.password}
                       onChange={e => setNewUser({ ...newUser, password: e.target.value })}
                       placeholder="••••••••"

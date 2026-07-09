@@ -40,7 +40,7 @@ export const SigninForm: React.FC<SigninFormProps> = ({
           value={formData.email}
           onChange={onChange}
           placeholder="admin@company.com"
-          required
+          
           className={inputClass}
           style={inputStyle}
         />
@@ -62,7 +62,7 @@ export const SigninForm: React.FC<SigninFormProps> = ({
             value={formData.password}
             onChange={onChange}
             placeholder="••••••••"
-            required
+            
             className={`${inputClass} pr-12`}
             style={inputStyle}
           />

@@ -26,13 +26,13 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
     setLocalError(null);
     if (step === 1) {
       if (!formData.companyName?.trim()) {
-        setLocalError("Company name is required.");
+        setLocalError("Company name is .");
         return;
       }
       setStep(2);
     } else if (step === 2) {
       if (!formData.adminName?.trim()) {
-        setLocalError("Administrator name is required.");
+        setLocalError("Administrator name is .");
         return;
       }
       if (!formData.email?.trim() || !formData.email.includes("@")) {
@@ -98,7 +98,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
               value={formData.companyName}
               onChange={onChange}
               placeholder="e.g. Acme Corporation"
-              required
+              
               className={inputClass}
               style={inputStyle}
             />
@@ -130,7 +130,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
               value={formData.adminName}
               onChange={onChange}
               placeholder="e.g. John Doe"
-              required
+              
               className={inputClass}
               style={inputStyle}
             />
@@ -146,7 +146,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
               value={formData.email}
               onChange={onChange}
               placeholder="admin@company.com"
-              required
+              
               className={inputClass}
               style={inputStyle}
             />
@@ -190,7 +190,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                 value={formData.password}
                 onChange={onChange}
                 placeholder="••••••••"
-                required
+                
                 className={`${inputClass} pr-12`}
                 style={inputStyle}
               />
@@ -224,7 +224,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                 value={formData.confirmPassword}
                 onChange={onChange}
                 placeholder="••••••••"
-                required
+                
                 className={`${inputClass} pr-12`}
                 style={inputStyle}
               />
