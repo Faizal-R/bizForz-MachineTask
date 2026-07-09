@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: core
+    env: node
+    rootDir: core
+    buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm build && echo "dist contents:" && ls -la dist || true
+    startCommand: pnpm start
