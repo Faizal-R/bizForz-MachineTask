@@ -61,6 +61,8 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
   const [selectedUser, setSelectedUser] = useState<IUserRecord | null>(null);
   const [showOverrideModal, setShowOverrideModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [formError, setFormError] = useState("");
+  const [overrideError, setOverrideError] = useState("");
   const { getAllUsers, createUser, updateUserPermissions, updateUserRole } = useUsers();
   const { getAllRoles } = useRoles();
   const assignableRoles = availableRoles.filter((role) => !isAdminRoleName(role.name));
@@ -104,7 +106,9 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
 
   const handleSaveUser = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError("");
     if (isAdminRoleName(newUser.role)) {
+      setFormError("Admin role cannot be assigned from user management");
       return;
     }
     if (modalMode === "add") {
@@ -116,17 +120,12 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
         roles: [newUser.role],
         customPermissions: []
       };
-      try {
-        const res = await createUser(createdUser);
-        if (res && res.data) {
-          setUsers([...users, res.data]);
-        } else {
-          setUsers([...users, createdUser]);
-        }
-      } catch (err) {
-        console.warn("Failed creating user on backend, updating local state", err);
-        setUsers([...users, createdUser]);
+      const res = await createUser(createdUser);
+      if (!res?.success) {
+        setFormError(res?.message || "Failed creating user");
+        return;
       }
+      setUsers([...users, res.data || createdUser]);
     } else if (modalMode === "edit" && editingUserId) {
       const existing = users.find(u => u.id === editingUserId);
       if (existing) {
@@ -136,12 +135,12 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
           email: newUser.email,
           roles: [newUser.role]
         };
-        setUsers(users.map(u => u.id === editingUserId ? updated : u));
-        try {
-          await updateUserRole(editingUserId, [newUser.role]);
-        } catch (err) {
-          console.warn("Failed updating user role on backend", err);
+        const res = await updateUserRole(editingUserId, [newUser.role]);
+        if (!res?.success) {
+          setFormError(res?.message || "Failed updating user role");
+          return;
         }
+        setUsers(users.map(u => u.id === editingUserId ? (res.data || updated) : u));
       }
     }
     setShowModal(false);
@@ -153,6 +152,7 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
     if (hasAdminRole(user.roles)) return;
     setModalMode("edit");
     setEditingUserId(user.id);
+    setFormError("");
     const roleVal = user.roles[0];
     const roleName = roleVal && typeof roleVal === "object" ? (roleVal as any).name : roleVal;
     setNewUser({
@@ -170,6 +170,7 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
       ...user,
       customPermissions: getPermissionNames(user.customPermissions),
     });
+    setOverrideError("");
     setShowOverrideModal(true);
   };
 
@@ -185,13 +186,15 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
 
     const updatedUser = { ...selectedUser, customPermissions: updatedPerms };
     setSelectedUser(updatedUser);
-    
-    try {
-      await updateUserPermissions(selectedUser.id, updatedPerms);
-    } catch (err) {
-      console.warn("Failed updating user permissions on backend, updating local state", err);
+
+    setOverrideError("");
+    const res = await updateUserPermissions(selectedUser.id, updatedPerms);
+    if (!res?.success) {
+      setSelectedUser(selectedUser);
+      setOverrideError(res?.message || "Failed updating user permissions");
+      return;
     }
-    setUsers(users.map(u => u.id === selectedUser.id ? updatedUser : u));
+    setUsers(users.map(u => u.id === selectedUser.id ? (res.data || updatedUser) : u));
   };
 
 
@@ -209,6 +212,7 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
               setModalMode("add");
               setEditingUserId(null);
               setNewUser({ name: "", email: "", password: "", role: defaultRole });
+              setFormError("");
               setShowModal(true);
             }}
             className="w-full sm:w-auto justify-center bg-primary-main text-secondary-dark px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md shadow-primary-main/20"
@@ -244,6 +248,7 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
                   setModalMode("add");
                   setEditingUserId(null);
                   setNewUser({ name: "", email: "", password: "", role: defaultRole });
+                  setFormError("");
                   setShowModal(true);
                 }}
                 className="w-full sm:w-auto bg-primary-main hover:bg-primary-light text-secondary-dark px-5 py-2.5 rounded-xl font-bold text-xs transition-all shadow-md shadow-primary-main/10"
@@ -425,6 +430,12 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
               {modalMode === "add" ? "Invite Member" : "Edit Member"}
             </h3>
             <form onSubmit={handleSaveUser} className="space-y-4">
+              {formError && (
+                <div className="rounded-xl border border-red-900/50 bg-red-950/30 px-4 py-3 text-sm font-semibold text-red-300">
+                  {formError}
+                </div>
+              )}
+
               <div className="space-y-1">
                 <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">Full Name</label>
                 <input
@@ -536,6 +547,12 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
             <p className="text-xs text-gray-400 mb-6">
               Grant custom system permissions to <span className="text-white font-semibold">{selectedUser.name}</span> overriding standard system roles.
             </p>
+
+            {overrideError && (
+              <div className="mb-4 rounded-xl border border-red-900/50 bg-red-950/30 px-4 py-3 text-sm font-semibold text-red-300">
+                {overrideError}
+              </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
               {AVAILABLE_PERMISSIONS.map(perm => {

@@ -17,6 +17,7 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ hasPermission }) => {
   const [showModal, setShowModal] = useState(false);
   const [currentProject, setCurrentProject] = useState<Partial<IProject>>({ name: "", description: "", status: "planning" });
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [formError, setFormError] = useState("");
   const { getAllProjects, createProject, updateProject, deleteProject } = useProjects();
 
   useEffect(() => {
@@ -36,12 +37,14 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ hasPermission }) => {
   const handleOpenCreate = () => {
     setCurrentProject({ name: "", description: "", status: "planning" });
     setEditingId(null);
+    setFormError("");
     setShowModal(true);
   };
 
   const handleOpenEdit = (project: IProject) => {
     setCurrentProject(project);
     setEditingId(project.id);
+    setFormError("");
     setShowModal(true);
   };
 
@@ -58,13 +61,14 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ hasPermission }) => {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError("");
     if (editingId) {
-      try {
-        await updateProject(editingId, currentProject);
-      } catch (err) {
-        console.warn("Failed updating project on backend, updating local state", err);
+      const res = await updateProject(editingId, currentProject);
+      if (!res?.success) {
+        setFormError(res?.message || "Failed updating project");
+        return;
       }
-      setProjects(projects.map(p => p.id === editingId ? { ...p, ...currentProject } as IProject : p));
+      setProjects(projects.map(p => p.id === editingId ? (res.data || { ...p, ...currentProject }) as IProject : p));
     } else {
       const newProj = {
         id: String(Date.now()),
@@ -72,17 +76,12 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ hasPermission }) => {
         description: currentProject.description || "",
         status: currentProject.status || "planning"
       } as IProject;
-      try {
-        const res = await createProject(newProj);
-        if (res && res.data) {
-          setProjects([...projects, res.data]);
-        } else {
-          setProjects([...projects, newProj]);
-        }
-      } catch (err) {
-        console.warn("Failed creating project on backend, updating local state", err);
-        setProjects([...projects, newProj]);
+      const res = await createProject(newProj);
+      if (!res?.success) {
+        setFormError(res?.message || "Failed creating project");
+        return;
       }
+      setProjects([...projects, res.data || newProj]);
     }
     setShowModal(false);
   };
@@ -219,6 +218,12 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ hasPermission }) => {
             </h3>
 
             <form onSubmit={handleSave} className="space-y-4">
+              {formError && (
+                <div className="rounded-xl border border-red-900/50 bg-red-950/30 px-4 py-3 text-sm font-semibold text-red-300">
+                  {formError}
+                </div>
+              )}
+
               <div className="space-y-1">
                 <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">Project Name</label>
                 <input

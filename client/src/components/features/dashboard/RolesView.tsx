@@ -28,6 +28,7 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
   const [showModal, setShowModal] = useState(false);
   const [editingRole, setEditingRole] = useState<IRoleRecord | null>(null);
   const [formState, setFormState] = useState({ name: "", description: "", permissions: [] as string[] });
+  const [formError, setFormError] = useState("");
   const { getAllRoles, createRole, updateRole, deleteRole } = useRoles();
   const visibleRoles = roles.filter((role) => !isReservedAdminRole(role));
 
@@ -48,6 +49,7 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
   const handleOpenCreate = () => {
     setEditingRole(null);
     setFormState({ name: "", description: "", permissions: [] });
+    setFormError("");
     setShowModal(true);
   };
 
@@ -55,6 +57,7 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
     if (isReservedAdminRole(role)) return;
     setEditingRole(role);
     setFormState({ name: role.name, description: role.description, permissions: [...role.permissions] });
+    setFormError("");
     setShowModal(true);
   };
 
@@ -67,22 +70,24 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError("");
     if (isReservedAdminRoleName(formState.name)) {
+      setFormError("Admin role is reserved and cannot be modified");
       return;
     }
     if (editingRole) {
-      try {
-        await updateRole(editingRole.id, {
-          name: formState.name,
-          description: formState.description,
-          permissions: formState.permissions,
-        });
-      } catch (err) {
-        console.warn("Failed updating role on backend, updating local state", err);
+      const res = await updateRole(editingRole.id, {
+        name: formState.name,
+        description: formState.description,
+        permissions: formState.permissions,
+      });
+      if (!res?.success) {
+        setFormError(res?.message || "Failed updating role");
+        return;
       }
       const updated = roles.map(r =>
         r.id === editingRole.id
-          ? { ...r, name: formState.name, description: formState.description, permissions: formState.permissions }
+          ? (res.data || { ...r, name: formState.name, description: formState.description, permissions: formState.permissions })
           : r
       );
       setRoles(updated);
@@ -93,17 +98,12 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
         description: formState.description,
         permissions: formState.permissions
       };
-      try {
-        const res = await createRole(newRole);
-        if (res && res.data) {
-          setRoles([...roles, res.data]);
-        } else {
-          setRoles([...roles, newRole]);
-        }
-      } catch (err) {
-        console.warn("Failed creating role on backend, updating local state", err);
-        setRoles([...roles, newRole]);
+      const res = await createRole(newRole);
+      if (!res?.success) {
+        setFormError(res?.message || "Failed creating role");
+        return;
       }
+      setRoles([...roles, res.data || newRole]);
     }
     setShowModal(false);
   };
@@ -244,6 +244,12 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
             </header>
 
             <form onSubmit={handleSubmit} className="p-5 sm:p-8 space-y-6">
+              {formError && (
+                <div className="rounded-xl border border-red-900/50 bg-red-950/30 px-4 py-3 text-sm font-semibold text-red-300">
+                  {formError}
+                </div>
+              )}
+
               <div className="space-y-2">
                 <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">Role Title</label>
                 <input
