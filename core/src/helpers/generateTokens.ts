@@ -10,7 +10,7 @@ export interface TokenPayload {
 export const generateTokens = {
   accessToken(payload: TokenPayload): string {
     return jwt.sign(payload, EnvConfig.ACCESS_TOKEN_SECRET, {
-      expiresIn: "1m",
+      expiresIn: "15m",
     });
   },
 
