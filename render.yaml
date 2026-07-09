@@ -1,7 +1,0 @@
-services:
-  - type: web
-    name: core
-    env: node
-    rootDir: core
-    buildCommand: rm -f tsconfig.tsbuildinfo || true && pnpm install --frozen-lockfile --prod=false && pnpm build && echo "dist files:" && find dist -type f -print || true
-    startCommand: ls -la dist || true && node dist/server.js
