@@ -1,23 +1,23 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
-import { EnvConfig } from "config/env.js";
+import { EnvConfig } from "../config/env.js";
 import { accesCookieConfig, refreshCookieConfig } from "config/cookie.js";
 
-import { Tokens } from "constants/enums/tokens.js";
-import { statusCodes } from "constants/enums/statusCodes.js";
-import { AuthMessage } from "constants/messages/auth.messages.js";
+import { Tokens } from "../constants/enums/tokens.js";
+import { statusCodes } from "../constants/enums/statusCodes.js";
+import { AuthMessage } from "../constants/messages/auth.messages.js";
 
-import { CustomError } from "utils/custom-error.js";
+import { CustomError } from "../utils/custom-error.js";
 
 import { generateTokens, TokenPayload } from "./generateTokens.js";
 
-import { resolve } from "di/index.js";
-import { TYPES } from "di/types.js";
+import { resolve } from "../di/index.js";
+import { TYPES } from "../di/types.js";
 
-import { IUserRepository } from "repositories/interfaces/user.repository.interface.js";
+import { IUserRepository } from "../repositories/interfaces/user.repository.interface.js";
 
-import { IRole } from "model/role.model.js";
+import { IRole } from "../model/role.model.js";
 
 export const refreshSession = async (
   req: Request,
