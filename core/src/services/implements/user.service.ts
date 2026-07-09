@@ -230,6 +230,51 @@ export class UserService implements IUserService {
     }
   }
 
+  async deleteUser(userId: string, tenantId: string, requesterId?: string): Promise<boolean> {
+    try {
+      // Prevent self-deletion
+      if (requesterId && requesterId === userId) {
+        throw new CustomError(
+          "You cannot delete your own account",
+          statusCodes.FORBIDDEN,
+        );
+      }
+
+      // Verify user belongs to tenant
+      const user = await this._userRepository.findOne({ _id: userId, tenantId } as any);
+      if (!user) {
+        throw new CustomError(
+          "User not found or does not belong to this tenant",
+          statusCodes.NOT_FOUND,
+        );
+      }
+
+      // Prevent deleting admin users
+      const userRoles = await this._roleRepository.findRolesByIds(user.roles as Types.ObjectId[]);
+      if (userRoles.some((role: any) => this.isAdminRoleName(role.name))) {
+        throw new CustomError(
+          "Admin users cannot be deleted from user management",
+          statusCodes.FORBIDDEN,
+        );
+      }
+
+      const deleted = await this._userRepository.delete(userId);
+      if (!deleted) {
+        throw new CustomError(
+          "Failed to delete user",
+          statusCodes.INTERNAL_SERVER_ERROR,
+        );
+      }
+      return true;
+    } catch (error) {
+      if (error instanceof CustomError) throw error;
+      throw new CustomError(
+        "Failed to delete user",
+        statusCodes.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   private isAdminRoleName(roleName?: string): boolean {
     return roleName?.trim().toLowerCase() === "admin";
   }

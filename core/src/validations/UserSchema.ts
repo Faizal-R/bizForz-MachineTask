@@ -3,7 +3,7 @@ import { z } from "zod";
 const stringListSchema = (fieldName: string) =>
   z
     .array(z.string().trim().min(1, `${fieldName} cannot contain empty values`))
-    .min(1, `${fieldName} must contain at least one value`);
+    .min(1, `${fieldName} must contain at least one value`).optional();
 
 export const createUserSchema = z.object({
   name: z

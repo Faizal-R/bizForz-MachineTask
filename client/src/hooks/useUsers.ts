@@ -44,11 +44,22 @@ export const useUsers = () => {
     }
   }, []);
 
+  const deleteUser = useCallback(async (id: string) => {
+    setLoading(true);
+    try {
+      const response = await UserService.delete(id);
+      return response;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return {
     getAllUsers,
     createUser,
     updateUserPermissions,
     updateUserRole,
+    deleteUser,
     loading,
   };
 };

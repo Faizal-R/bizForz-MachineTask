@@ -63,7 +63,7 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState("");
   const [overrideError, setOverrideError] = useState("");
-  const { getAllUsers, createUser, updateUserPermissions, updateUserRole } = useUsers();
+  const { getAllUsers, createUser, updateUserPermissions, updateUserRole, deleteUser } = useUsers();
   const { getAllRoles } = useRoles();
   const assignableRoles = availableRoles.filter((role) => !isAdminRoleName(role.name));
   const defaultRole = assignableRoles[0]?.name || "Employee";
@@ -197,6 +197,15 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
     setUsers(users.map(u => u.id === selectedUser.id ? (res.data || updatedUser) : u));
   };
 
+  const handleDeleteUser = async (user: IUserRecord) => {
+    if (hasAdminRole(user.roles)) return;
+    if (!window.confirm(`Are you sure you want to delete ${user.name}? This action cannot be undone.`)) return;
+    const res = await deleteUser(user.id);
+    if (res?.success) {
+      setUsers(users.filter(u => u.id !== user.id));
+    }
+  };
+
 
   return (
     <div className="space-y-6">
@@ -326,6 +335,17 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
                             </button>
                           </>
                         )}
+                        {hasPermission("delete:users") && !isCurrentUser && !isAdmin && (
+                          <button
+                            onClick={() => handleDeleteUser(u)}
+                            title="Delete user"
+                            className="text-gray-500 hover:text-red-400 transition-colors p-1.5 rounded-lg hover:bg-red-950/30"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        )}
                         {isCurrentUser && (
                           <span className="text-xs text-gray-500 italic">Current User</span>
                         )}
@@ -406,6 +426,17 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
                           Adjust Overrides
                         </button>
                       </>
+                    )}
+                    {hasPermission("delete:users") && !isCurrentUser && !isAdmin && (
+                      <button
+                        onClick={() => handleDeleteUser(u)}
+                        className="w-full rounded-xl border border-red-900/50 bg-red-950/20 px-4 py-2.5 text-xs font-bold text-red-400 hover:bg-red-950/40 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Delete
+                      </button>
                     )}
                     {isCurrentUser && (
                       <span className="w-full rounded-xl border border-neutral-800 px-4 py-2.5 text-center text-xs text-gray-500 italic">Current User</span>

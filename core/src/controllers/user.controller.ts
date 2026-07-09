@@ -92,4 +92,20 @@ export class UserController implements IUserController {
       );
     },
   );
+
+  delete: RequestHandler = tryCatch(
+    async (req: Request, res: Response): Promise<void> => {
+      const tenantId = req.user!.tenantId;
+      const { userId } = req.params;
+      const requesterId = req.user!.userId;
+      await this._userService.deleteUser(userId as string, tenantId, requesterId);
+      return createResponse(
+        res,
+        statusCodes.SUCCESS,
+        true,
+        "User deleted successfully",
+        null,
+      );
+    },
+  );
 }

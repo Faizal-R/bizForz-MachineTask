@@ -5,4 +5,5 @@ export interface IUserController {
   create: RequestHandler;
   updatePermissions: RequestHandler;
   updateRole: RequestHandler;
+  delete: RequestHandler;
 }

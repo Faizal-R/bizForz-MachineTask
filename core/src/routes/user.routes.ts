@@ -20,5 +20,6 @@ router.get("/", authorize(Permissions.Users.READ), userController.getAll);
 router.post("/", authorize(Permissions.Users.CREATE), validate(createUserSchema), userController.create);
 router.put("/:userId/role", authorize(Permissions.Users.UPDATE), validate(updateUserRoleSchema), userController.updateRole);
 router.put("/:userId/permissions", authorize(Permissions.Users.UPDATE), validate(updateUserPermissionsSchema), userController.updatePermissions);
+router.delete("/:userId", authorize(Permissions.Users.DELETE), userController.delete);
 
 export default router;

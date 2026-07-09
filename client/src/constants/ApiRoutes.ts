@@ -16,6 +16,7 @@ export const ApiRoutes = {
     CREATE: "/users",
     UPDATE_PERMISSIONS: (userId: string) => `/users/${userId}/permissions`,
     UPDATE_ROLE: (userId: string) => `/users/${userId}/role`,
+    DELETE: (userId: string) => `/users/${userId}`,
   },
   Roles: {
     GET_ALL: "/roles",

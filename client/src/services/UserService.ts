@@ -38,6 +38,15 @@ export const UserService = {
       return parseAxiosError(error, "An error occurred while updating user role");
     }
   },
+
+  delete: async (id: string) => {
+    try {
+      const response = await apiClient.delete(ApiRoutes.Users.DELETE(id));
+      return response.data;
+    } catch (error) {
+      return parseAxiosError(error, "An error occurred while deleting user");
+    }
+  },
 };
 
 export default UserService;
