@@ -4,6 +4,8 @@ import { IRoleController } from "../controllers/interfaces/role.controller.inter
 import { authorize, protect } from "../middlewares/auth.middleware.js";
 import { TYPES } from "../di/types.js";
 import { Permissions } from "../constants/permissions.js";
+import { validate } from "../middlewares/validate.js";
+import { createRoleSchema, updateRoleSchema } from "../validations/RoleSchema.js";
 
 const router: Router = Router();
 const roleController = resolve<IRoleController>(TYPES.RoleController);
@@ -11,8 +13,8 @@ const roleController = resolve<IRoleController>(TYPES.RoleController);
 router.use(protect);
 
 router.get("/", authorize(Permissions.Roles.READ), roleController.getAll);
-router.post("/", authorize(Permissions.Roles.CREATE), roleController.create);
-router.put("/:roleId", authorize(Permissions.Roles.UPDATE), roleController.update);
+router.post("/", authorize(Permissions.Roles.CREATE), validate(createRoleSchema), roleController.create);
+router.put("/:roleId", authorize(Permissions.Roles.UPDATE), validate(updateRoleSchema), roleController.update);
 router.delete("/:roleId", authorize(Permissions.Roles.DELETE), roleController.delete);
 
 export default router;

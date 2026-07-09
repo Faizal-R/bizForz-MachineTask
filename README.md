@@ -254,7 +254,7 @@ pnpm run preview
 
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
-| `PORT` | Server port | `7000` | Yes |
+| `PORT` | Server port | `5002` | No |
 | `NODE_ENV` | Environment mode | `development` | Yes |
 | `DATABASE_URI` | MongoDB connection string | `mongodb://localhost:27017` | Yes |
 | `FRONTEND_URL` | Frontend URL for CORS | `http://localhost:5173` | Yes |
@@ -288,44 +288,51 @@ pnpm run preview
 
 ## 🔌 API Endpoints
 
+All application API routes are mounted under `/api`. The health check route is mounted outside the API prefix at `/health`.
+
+Protected routes require the authentication cookie set by `POST /api/auth/signin`.
+
 ### Authentication
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `POST` | `/api/auth/register` | Register new user |
-| `POST` | `/api/auth/login` | Login user |
-| `POST` | `/api/auth/refresh` | Refresh access token |
-| `POST` | `/api/auth/logout` | Logout user |
+| `POST` | `/api/auth/register` | Register a tenant and initial user |
+| `POST` | `/api/auth/signin` | Sign in and set auth cookies |
+| `POST` | `/api/auth/logout` | Clear auth cookies |
+| `GET` | `/api/auth/me` | Get the authenticated user |
 
 ### Users
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/api/users` | Get all users |
-| `GET` | `/api/users/:id` | Get user by ID |
-| `PATCH` | `/api/users/:id` | Update user |
-| `DELETE` | `/api/users/:id` | Delete user |
+| `POST` | `/api/users` | Create user |
+| `PUT` | `/api/users/:userId/role` | Update a user's roles |
+| `PUT` | `/api/users/:userId/permissions` | Update a user's custom permissions |
 
 ### Roles
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/api/roles` | Get all roles |
 | `POST` | `/api/roles` | Create role |
-| `PATCH` | `/api/roles/:id` | Update role |
-| `DELETE` | `/api/roles/:id` | Delete role |
+| `PUT` | `/api/roles/:roleId` | Update role |
+| `DELETE` | `/api/roles/:roleId` | Delete role |
 
 ### Permissions
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/api/permissions` | Get all permissions |
-| `POST` | `/api/permissions` | Create permission |
 
 ### Projects
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/api/projects` | Get all projects |
 | `POST` | `/api/projects` | Create project |
-| `GET` | `/api/projects/:id` | Get project by ID |
-| `PATCH` | `/api/projects/:id` | Update project |
-| `DELETE` | `/api/projects/:id` | Delete project |
+| `PUT` | `/api/projects/:projectId` | Update project |
+| `DELETE` | `/api/projects/:projectId` | Delete project |
+
+### Health
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/health` | Check if the API is running |
 
 ## 🐳 Deployment
 

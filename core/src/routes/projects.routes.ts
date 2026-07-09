@@ -4,6 +4,8 @@ import { IProjectController } from "../controllers/interfaces/project.controller
 import { authorize, protect } from "../middlewares/auth.middleware.js";
 import { TYPES } from "../di/types.js";
 import { Permissions } from "../constants/permissions.js";
+import { validate } from "../middlewares/validate.js";
+import { createProjectSchema, updateProjectSchema } from "../validations/ProjectSchema.js";
 
 const router: Router = Router();
 const projectController = resolve<IProjectController>(TYPES.ProjectController);
@@ -11,8 +13,8 @@ const projectController = resolve<IProjectController>(TYPES.ProjectController);
 router.use(protect);
 
 router.get("/", authorize(Permissions.Projects.READ), projectController.getAll);
-router.post("/", authorize(Permissions.Projects.CREATE), projectController.create);
-router.put("/:projectId", authorize(Permissions.Projects.UPDATE), projectController.update);
+router.post("/", authorize(Permissions.Projects.CREATE), validate(createProjectSchema), projectController.create);
+router.put("/:projectId", authorize(Permissions.Projects.UPDATE), validate(updateProjectSchema), projectController.update);
 router.delete("/:projectId", authorize(Permissions.Projects.DELETE), projectController.delete);
 
 export default router;
