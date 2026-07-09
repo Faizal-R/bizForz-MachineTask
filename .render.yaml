@@ -3,5 +3,5 @@ services:
     name: core
     env: node
     rootDir: core
-    buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm build && echo "dist contents:" && ls -la dist || true
+    buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm exec tsc --listEmittedFiles || true && pnpm build && echo "dist files:" && find dist -type f -print || true
     startCommand: pnpm start
