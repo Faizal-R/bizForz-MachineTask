@@ -72,6 +72,7 @@ export class UserService implements IUserService {
         customPermissions: [],
         status: "active"
       } as any);
+
       const populatedUser = await this._userRepository.findByIdWithRelations(user._id.toString());
       return UserMapper.toResponse(populatedUser || user);
     } catch (error) {
@@ -180,37 +181,17 @@ export class UserService implements IUserService {
         );
       }
 
-      // Validate that requester has all permissions they're trying to grant
-      if (requesterId) {
-        const requester = await this._userRepository.findOne({ _id: requesterId, tenantId } as any);
-        if (requester) {
-          const requesterRoles = await this._roleRepository.findRolesByIds(requester.roles as Types.ObjectId[]);
-          const requesterCustomPerms = await this._permissionRepository.find({ _id: { $in: requester.customPermissions } } as any);
-          
-          const requesterPermissions = [
-            ...requesterRoles.flatMap((r: any) => (r.permissions as any[])?.map((p: any) => p.name) || []),
-            ...(requesterCustomPerms?.map((p: any) => p.name) || [])
-          ];
-          
-          const unauthorizedPerms = permissionNames.filter(p => !requesterPermissions.includes(p));
-          if (unauthorizedPerms.length > 0) {
-            throw new CustomError(
-              `Cannot grant permissions you don't have: ${unauthorizedPerms.join(", ")}`,
-              statusCodes.FORBIDDEN,
-            );
-          }
-        }
-      }
+      const normalizedPermissionNames = Array.isArray(permissionNames) ? permissionNames : [];
 
       // Resolve permission IDs (can be tenant-scoped or global/null tenantId)
       const permissions = await this._permissionRepository.find({
-        name: { $in: permissionNames },
+        name: { $in: normalizedPermissionNames },
         $or: [
           { tenantId: null },
           { tenantId: new Types.ObjectId(tenantId) },
         ],
       } as any);
-      const permissionIds = permissions.map(p => p._id as Types.ObjectId);
+      const permissionIds = permissions.map((p: any) => p._id as Types.ObjectId);
 
       const updatedUser = await this._userRepository.update(userId, { customPermissions: permissionIds });
       if (!updatedUser) {

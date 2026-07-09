@@ -56,6 +56,7 @@ export class RoleService implements IRoleService {
         permissions: permissionIds
       } as any);
       role.permissions = permissions as any;
+      
       return RoleMapper.toResponse(role);
     } catch (error) {
       if (error instanceof CustomError) throw error;
