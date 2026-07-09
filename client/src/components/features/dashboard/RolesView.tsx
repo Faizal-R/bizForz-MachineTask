@@ -122,7 +122,7 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
   return (
     <div className="space-y-6">
       {/* Action Header */}
-      <div className="flex justify-between items-center bg-[#110e1a] p-6 rounded-2xl border border-neutral-800">
+      <div className="flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center bg-[#110e1a] p-4 sm:p-6 rounded-2xl border border-neutral-800">
         <div className="text-sm text-gray-400">
           Displaying <span className="text-white font-bold">{visibleRoles.length}</span> workspace roles.
         </div>
@@ -130,7 +130,7 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
         {hasPermission("create:roles") ? (
           <button
             onClick={handleOpenCreate}
-            className="bg-primary-main text-secondary-dark px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md shadow-primary-main/20"
+            className="w-full sm:w-auto justify-center bg-primary-main text-secondary-dark px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md shadow-primary-main/20"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -138,7 +138,7 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
             Create New Role
           </button>
         ) : (
-          <div className="text-xs text-gray-500 font-bold uppercase tracking-wider bg-neutral-900 px-3 py-1.5 rounded-lg border border-neutral-800">
+          <div className="w-full sm:w-auto text-center text-xs text-gray-500 font-bold uppercase tracking-wider bg-neutral-900 px-3 py-1.5 rounded-lg border border-neutral-800">
             Read-Only Settings
           </div>
         )}
@@ -146,7 +146,7 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
 
       {/* Grid of Roles or Empty State */}
       {visibleRoles.length === 0 ? (
-        <div className="p-16 text-center flex flex-col items-center justify-center space-y-4 bg-[#110e1a] border border-neutral-800 rounded-2xl">
+        <div className="p-8 sm:p-16 text-center flex flex-col items-center justify-center space-y-4 bg-[#110e1a] border border-neutral-800 rounded-2xl">
           <div className="w-16 h-16 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-gray-500">
             <svg className="w-8 h-8 text-primary-main/70" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -159,23 +159,23 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
           {hasPermission("create:roles") && (
             <button
               onClick={handleOpenCreate}
-              className="bg-primary-main hover:bg-primary-light text-secondary-dark px-5 py-2.5 rounded-xl font-bold text-xs transition-all shadow-md shadow-primary-main/10"
+              className="w-full sm:w-auto bg-primary-main hover:bg-primary-light text-secondary-dark px-5 py-2.5 rounded-xl font-bold text-xs transition-all shadow-md shadow-primary-main/10"
             >
               Create New Role
             </button>
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
           {visibleRoles.map((role) => (
             <div
               key={role.id}
-              className="bg-[#110e1a]/60 hover:bg-[#110e1a] p-6 rounded-2xl border border-neutral-800 hover:border-neutral-700 transition-all flex flex-col justify-between group"
+              className="bg-[#110e1a]/60 hover:bg-[#110e1a] p-5 sm:p-6 rounded-2xl border border-neutral-800 hover:border-neutral-700 transition-all flex flex-col justify-between group"
             >
               <div className="space-y-4">
                 <div className="flex justify-between items-start">
                   <h3 className="text-lg font-black text-white uppercase tracking-tight">{role.name}</h3>
-                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                     {hasPermission("update:roles") && (
                       <button
                         onClick={() => handleOpenEdit(role)}
@@ -228,9 +228,9 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
       {/* Create / Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm">
-          <div className="bg-[#110e1a] w-full max-w-xl rounded-3xl border border-neutral-800 overflow-hidden shadow-2xl animate-fade-in">
-            <header className="px-8 py-6 border-b border-neutral-800 flex justify-between items-center">
-              <h2 className="text-xl font-black text-white uppercase tracking-tight">
+          <div className="bg-[#110e1a] w-full max-w-xl max-h-[90vh] rounded-3xl border border-neutral-800 overflow-y-auto shadow-2xl animate-fade-in">
+            <header className="px-5 sm:px-8 py-5 sm:py-6 border-b border-neutral-800 flex justify-between items-center gap-4">
+              <h2 className="text-lg sm:text-xl font-black text-white uppercase tracking-tight">
                 {editingRole ? "Modify Role Details" : "Create Workspace Role"}
               </h2>
               <button
@@ -243,7 +243,7 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
               </button>
             </header>
 
-            <form onSubmit={handleSubmit} className="p-8 space-y-6">
+            <form onSubmit={handleSubmit} className="p-5 sm:p-8 space-y-6">
               <div className="space-y-2">
                 <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">Role Title</label>
                 <input
@@ -268,7 +268,7 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
 
               <div className="space-y-3">
                 <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">System Permissions Mapping</label>
-                <div className="grid grid-cols-2 gap-3 max-h-48 overflow-y-auto p-4 bg-neutral-950 rounded-xl border border-neutral-800 custom-scrollbar">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto p-4 bg-neutral-950 rounded-xl border border-neutral-800 custom-scrollbar">
                   {AVAILABLE_PERMISSIONS.map((perm) => {
                     const active = formState.permissions.includes(perm);
                     return (
@@ -301,17 +301,17 @@ const RolesView: React.FC<RolesViewProps> = ({ hasPermission }) => {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-neutral-800/80">
+              <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-4 border-t border-neutral-800/80">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-5 py-2.5 rounded-xl border border-neutral-800 text-gray-400 hover:text-white font-bold text-sm transition-colors"
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-neutral-800 text-gray-400 hover:text-white font-bold text-sm transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="bg-primary-main text-secondary-dark px-6 py-2.5 rounded-xl font-black text-sm uppercase tracking-wide hover:scale-[1.02] active:scale-[0.98] transition-all"
+                  className="w-full sm:w-auto bg-primary-main text-secondary-dark px-6 py-2.5 rounded-xl font-black text-sm uppercase tracking-wide hover:scale-[1.02] active:scale-[0.98] transition-all"
                 >
                   {editingRole ? "Apply Modifications" : "Register Role"}
                 </button>

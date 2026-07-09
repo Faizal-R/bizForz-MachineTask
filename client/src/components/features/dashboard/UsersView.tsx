@@ -198,7 +198,7 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
   return (
     <div className="space-y-6">
       {/* Action Header */}
-      <div className="flex justify-between items-center bg-[#110e1a] p-6 rounded-2xl border border-neutral-800">
+      <div className="flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center bg-[#110e1a] p-4 sm:p-6 rounded-2xl border border-neutral-800">
         <div className="text-sm text-gray-400">
           Displaying <span className="text-white font-bold">{users.length}</span> members in your tenant workspace.
         </div>
@@ -211,7 +211,7 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
               setNewUser({ name: "", email: "", password: "", role: defaultRole });
               setShowModal(true);
             }}
-            className="bg-primary-main text-secondary-dark px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md shadow-primary-main/20"
+            className="w-full sm:w-auto justify-center bg-primary-main text-secondary-dark px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md shadow-primary-main/20"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
@@ -219,7 +219,7 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
             Add Team Member
           </button>
         ) : (
-          <div className="text-xs text-gray-500 font-bold uppercase tracking-wider bg-neutral-900 px-3 py-1.5 rounded-lg border border-neutral-800">
+          <div className="w-full sm:w-auto text-center text-xs text-gray-500 font-bold uppercase tracking-wider bg-neutral-900 px-3 py-1.5 rounded-lg border border-neutral-800">
             Read-Only Directory
           </div>
         )}
@@ -228,7 +228,7 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
       {/* Directory Table or Empty State */}
       <div className="bg-[#110e1a] border border-neutral-800 rounded-2xl overflow-hidden shadow-md">
         {users.length === 0 ? (
-          <div className="p-16 text-center flex flex-col items-center justify-center space-y-4 bg-[#110e1a]">
+          <div className="p-8 sm:p-16 text-center flex flex-col items-center justify-center space-y-4 bg-[#110e1a]">
             <div className="w-16 h-16 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-gray-500">
               <svg className="w-8 h-8 text-primary-main/70" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
@@ -246,14 +246,15 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
                   setNewUser({ name: "", email: "", password: "", role: defaultRole });
                   setShowModal(true);
                 }}
-                className="bg-primary-main hover:bg-primary-light text-secondary-dark px-5 py-2.5 rounded-xl font-bold text-xs transition-all shadow-md shadow-primary-main/10"
+                className="w-full sm:w-auto bg-primary-main hover:bg-primary-light text-secondary-dark px-5 py-2.5 rounded-xl font-bold text-xs transition-all shadow-md shadow-primary-main/10"
               >
                 Invite Member
               </button>
             )}
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-neutral-800 text-[10px] text-gray-400 font-extrabold uppercase tracking-wider bg-[#1a1726]/40">
@@ -333,14 +334,94 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
               </tbody>
             </table>
           </div>
+          <div className="md:hidden space-y-3 p-3">
+            {users.map((u) => {
+              const isCurrentUser = currentUserId && u.id === currentUserId;
+              const isAdmin = hasAdminRole(u.roles);
+              const customPermissionCount = u.customPermissions.length;
+
+              return (
+                <div key={u.id} className="p-4 space-y-4 rounded-2xl border border-neutral-800 bg-[#110e1a]">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary-main/15 text-primary-main flex items-center justify-center font-bold border border-primary-main/25 shrink-0">
+                      {u.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-bold text-white truncate">{u.name}</h3>
+                      <p className="text-sm text-gray-400 break-all">{u.email}</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-3 text-xs">
+                    <div>
+                      <span className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Roles</span>
+                      <div className="flex flex-wrap gap-2">
+                        {u.roles.map((r: any, i) => {
+                          const roleName = getRoleName(r);
+                          return (
+                            <span key={i} className={`text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full border ${
+                              isAdminRoleName(roleName)
+                                ? "bg-red-950/40 text-red-400 border-red-950/50"
+                                : roleName === "Manager"
+                                ? "bg-blue-950/40 text-blue-400 border-blue-950/50"
+                                : "bg-neutral-800 text-gray-400 border-neutral-700"
+                            }`}>
+                              {roleName}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-3 rounded-xl bg-[#08060d]/70 border border-neutral-800 px-3 py-2.5">
+                      <span className="text-gray-500 font-bold">Overrides</span>
+                      {customPermissionCount > 0 ? (
+                        <span className="text-[10px] font-bold bg-primary-main/10 text-primary-main border border-primary-main/20 px-2 py-0.5 rounded">
+                          +{customPermissionCount} custom permissions
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-600 font-medium">None</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    {hasPermission("update:users") && !isCurrentUser && !isAdmin && (
+                      <>
+                        <button
+                          onClick={() => handleEditClick(u)}
+                          className="w-full rounded-xl border border-neutral-800 px-4 py-2.5 text-xs font-bold text-gray-300 hover:text-white hover:bg-neutral-900 transition-colors"
+                        >
+                          Edit Member
+                        </button>
+                        <button
+                          onClick={() => handleOpenPermissions(u)}
+                          className="w-full rounded-xl bg-primary-main px-4 py-2.5 text-xs font-black text-secondary-dark hover:bg-primary-light transition-colors"
+                        >
+                          Adjust Overrides
+                        </button>
+                      </>
+                    )}
+                    {isCurrentUser && (
+                      <span className="w-full rounded-xl border border-neutral-800 px-4 py-2.5 text-center text-xs text-gray-500 italic">Current User</span>
+                    )}
+                    {isAdmin && !isCurrentUser && (
+                      <span className="w-full rounded-xl border border-neutral-800 px-4 py-2.5 text-center text-xs text-gray-500 italic">Admin (Read Only)</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          </>
         )}
       </div>
 
       {/* Add User Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-[#110e1a] border border-neutral-800 rounded-2xl p-8 relative">
-            <h3 className="text-xl font-black text-white tracking-tight mb-6">
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto bg-[#110e1a] border border-neutral-800 rounded-2xl p-5 sm:p-8 relative">
+            <h3 className="text-lg sm:text-xl font-black text-white tracking-tight mb-6">
               {modalMode === "add" ? "Invite Member" : "Edit Member"}
             </h3>
             <form onSubmit={handleSaveUser} className="space-y-4">
@@ -422,18 +503,18 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
                 )}
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="w-1/3 py-3 rounded-lg border border-neutral-800 bg-transparent text-gray-400 hover:text-white font-bold text-sm uppercase tracking-wide cursor-pointer transition-colors"
+                  className="w-full sm:w-1/3 py-3 rounded-lg border border-neutral-800 bg-transparent text-gray-400 hover:text-white font-bold text-sm uppercase tracking-wide cursor-pointer transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={modalMode === "add" && assignableRoles.length === 0}
-                  className={`w-2/3 py-3 rounded-lg border-none font-black text-sm uppercase tracking-wide cursor-pointer transition-all ${
+                  className={`w-full sm:w-2/3 py-3 rounded-lg border-none font-black text-sm uppercase tracking-wide cursor-pointer transition-all ${
                     modalMode === "add" && assignableRoles.length === 0
                       ? "bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-50"
                       : "bg-primary-main hover:bg-primary-light text-secondary-dark"
@@ -450,13 +531,13 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
       {/* Overrides Modal */}
       {showOverrideModal && selectedUser && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="w-full max-w-lg bg-[#110e1a] border border-neutral-800 rounded-2xl p-8 relative max-h-[85vh] overflow-y-auto">
-            <h3 className="text-xl font-black text-white tracking-tight mb-2">Adjust Access Rules</h3>
+          <div className="w-full max-w-lg bg-[#110e1a] border border-neutral-800 rounded-2xl p-5 sm:p-8 relative max-h-[85vh] overflow-y-auto">
+            <h3 className="text-lg sm:text-xl font-black text-white tracking-tight mb-2">Adjust Access Rules</h3>
             <p className="text-xs text-gray-400 mb-6">
               Grant custom system permissions to <span className="text-white font-semibold">{selectedUser.name}</span> overriding standard system roles.
             </p>
 
-            <div className="grid grid-cols-2 gap-3 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
               {AVAILABLE_PERMISSIONS.map(perm => {
                 const roleAssigned = getRolePermissionNames(selectedUser).includes(perm);
                 const customAssigned = getPermissionNames(selectedUser.customPermissions).includes(perm);
@@ -496,7 +577,7 @@ const UsersView: React.FC<UsersViewProps> = ({ hasPermission, currentUserId }) =
             <div className="flex justify-end">
               <button
                 onClick={() => setShowOverrideModal(false)}
-                className="bg-primary-main hover:bg-primary-light text-secondary-dark px-6 py-2.5 rounded-xl font-black text-sm uppercase tracking-wide transition-colors"
+                className="w-full sm:w-auto bg-primary-main hover:bg-primary-light text-secondary-dark px-6 py-2.5 rounded-xl font-black text-sm uppercase tracking-wide transition-colors"
               >
                 Close & Sync Rules
               </button>

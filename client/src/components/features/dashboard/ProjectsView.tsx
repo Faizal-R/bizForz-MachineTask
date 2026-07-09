@@ -90,8 +90,8 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ hasPermission }) => {
   return (
     <div className="space-y-6">
       {/* Search & Actions */}
-      <div className="flex justify-between items-center bg-[#110e1a] p-6 rounded-2xl border border-neutral-800">
-        <div className="relative w-72">
+      <div className="flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center bg-[#110e1a] p-4 sm:p-6 rounded-2xl border border-neutral-800">
+        <div className="relative w-full sm:w-72">
           <input
             type="text"
             placeholder="Search projects..."
@@ -105,7 +105,7 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ hasPermission }) => {
         {hasPermission("create:projects") ? (
           <button
             onClick={handleOpenCreate}
-            className="bg-primary-main text-secondary-dark px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md shadow-primary-main/20"
+            className="w-full sm:w-auto justify-center bg-primary-main text-secondary-dark px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md shadow-primary-main/20"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -113,7 +113,7 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ hasPermission }) => {
             Create Project
           </button>
         ) : (
-          <div className="text-xs text-gray-500 font-bold uppercase tracking-wider bg-neutral-900 px-3 py-1.5 rounded-lg border border-neutral-800">
+          <div className="w-full sm:w-auto text-center text-xs text-gray-500 font-bold uppercase tracking-wider bg-neutral-900 px-3 py-1.5 rounded-lg border border-neutral-800">
             Read-Only Access
           </div>
         )}
@@ -121,7 +121,7 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ hasPermission }) => {
 
       {/* Projects Grid or Empty State */}
       {projects.length === 0 ? (
-        <div className="p-16 text-center flex flex-col items-center justify-center space-y-4 bg-[#110e1a] border border-neutral-800 rounded-2xl">
+        <div className="p-8 sm:p-16 text-center flex flex-col items-center justify-center space-y-4 bg-[#110e1a] border border-neutral-800 rounded-2xl">
           <div className="w-16 h-16 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-gray-500">
             <svg className="w-8 h-8 text-primary-main/70" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -134,18 +134,18 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ hasPermission }) => {
           {hasPermission("create:projects") && (
             <button
               onClick={handleOpenCreate}
-              className="bg-primary-main hover:bg-primary-light text-secondary-dark px-5 py-2.5 rounded-xl font-bold text-xs transition-all shadow-md shadow-primary-main/10"
+              className="w-full sm:w-auto bg-primary-main hover:bg-primary-light text-secondary-dark px-5 py-2.5 rounded-xl font-bold text-xs transition-all shadow-md shadow-primary-main/10"
             >
               Create Project
             </button>
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
           {projects.map((project) => (
             <div
               key={project.id}
-              className="bg-[#110e1a] border border-neutral-800 rounded-2xl p-6 flex flex-col justify-between hover:border-neutral-700 transition-colors shadow-sm relative group"
+              className="bg-[#110e1a] border border-neutral-800 rounded-2xl p-5 sm:p-6 flex flex-col justify-between hover:border-neutral-700 transition-colors shadow-sm relative group"
             >
               <div>
                 <div className="flex justify-between items-start mb-4">
@@ -162,7 +162,7 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ hasPermission }) => {
                   </span>
 
                   {/* Dropdown actions */}
-                  <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex gap-1.5 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                     {hasPermission("update:projects") && (
                       <button
                         onClick={() => handleOpenEdit(project)}
@@ -213,8 +213,8 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ hasPermission }) => {
       {/* Create / Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-[#110e1a] border border-neutral-800 rounded-2xl p-8 relative">
-            <h3 className="text-xl font-black text-white tracking-tight mb-6">
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto bg-[#110e1a] border border-neutral-800 rounded-2xl p-5 sm:p-8 relative">
+            <h3 className="text-lg sm:text-xl font-black text-white tracking-tight mb-6">
               {editingId ? "Modify Deliverable" : "Launch Project"}
             </h3>
 
@@ -256,17 +256,17 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ hasPermission }) => {
                 </select>
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="w-1/3 py-3 rounded-lg border border-neutral-800 bg-transparent text-gray-400 hover:text-white font-bold text-sm uppercase tracking-wide cursor-pointer transition-colors"
+                  className="w-full sm:w-1/3 py-3 rounded-lg border border-neutral-800 bg-transparent text-gray-400 hover:text-white font-bold text-sm uppercase tracking-wide cursor-pointer transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="w-2/3 py-3 rounded-lg border-none bg-primary-main hover:bg-primary-light text-secondary-dark font-black text-sm uppercase tracking-wide cursor-pointer transition-colors"
+                  className="w-full sm:w-2/3 py-3 rounded-lg border-none bg-primary-main hover:bg-primary-light text-secondary-dark font-black text-sm uppercase tracking-wide cursor-pointer transition-colors"
                 >
                   Save Project
                 </button>
