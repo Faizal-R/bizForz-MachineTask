@@ -37,8 +37,8 @@ const AVAILABLE_PERMISSIONS = [
   "read:permissions"
 ];
 
-const getRoleName = (role: string | { name?: string }) =>
-  role && typeof role === "object" ? role.name : role;
+const getRoleName = (role: string | { name?: string }): string | undefined =>
+  typeof role === "string" ? role : role?.name;
 
 const isAdminRoleName = (roleName?: string) => roleName?.trim().toLowerCase() === "admin";
 
