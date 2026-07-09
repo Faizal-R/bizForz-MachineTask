@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
 import { EnvConfig } from "../config/env.js";
-import { accesCookieConfig, refreshCookieConfig } from "config/cookie.js";
+import { accesCookieConfig, refreshCookieConfig } from "../config/cookie.js";
 
 import { Tokens } from "../constants/enums/tokens.js";
 import { statusCodes } from "../constants/enums/statusCodes.js";

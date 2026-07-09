@@ -262,6 +262,9 @@ importers:
       '@types/node':
         specifier: ^26.1.0
         version: 26.1.0
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
 
 packages:
 
@@ -910,6 +913,11 @@ packages:
   type-is@2.1.0:
     resolution: {integrity: sha512-faYHw0anBbc/kWF3zFTEnxSFOAGUX9GFbOBthvDdLsIlEoWOFOtS0zgCiQYwIskL9iGXZL3kAXD8OoZ4GmMATA==}
     engines: {node: '>= 18'}
+
+  typescript@6.0.3:
+    resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
 
   undici-types@8.3.0:
     resolution: {integrity: sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ==}
@@ -1571,6 +1579,8 @@ snapshots:
       content-type: 2.0.0
       media-typer: 1.1.0
       mime-types: 3.0.2
+
+  typescript@6.0.3: {}
 
   undici-types@8.3.0: {}
 
