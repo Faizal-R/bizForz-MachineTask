@@ -33,11 +33,21 @@ export class RoleService implements IRoleService {
 
   async createRole(tenantId: string, roleData: CreateRoleDTO): Promise<RoleResponseDTO> {
     try {
+        
       if (this.isAdminRoleName(roleData.name)) {
         throw new CustomError(
           "Admin role is reserved and cannot be created",
           statusCodes.FORBIDDEN,
         );
+      }
+
+      const existingRole= await this._roleRepository.findOne({
+        tenantId,
+        name:roleData.name.toLowerCase()
+      })
+      
+      if(existingRole){
+        throw new CustomError("Role already existing with in the Same Tenant",statusCodes.CONFLICT)
       }
 
       const permissions = await this._permissionRepository.find({
@@ -56,7 +66,7 @@ export class RoleService implements IRoleService {
         permissions: permissionIds
       } as any);
       role.permissions = permissions as any;
-      
+
       return RoleMapper.toResponse(role);
     } catch (error) {
       if (error instanceof CustomError) throw error;
