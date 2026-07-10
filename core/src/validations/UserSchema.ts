@@ -22,7 +22,7 @@ export const createUserSchema = z.object({
     .min(6, "Password must be at least 6 characters")
     .max(100, "Password must be less than 100 characters"),
   roles: stringListSchema("Roles").optional(),
-  customPermissions: stringListSchema("Custom permissions").optional(),
+  // customPermissions: stringListSchema("Custom permissions").optional(),
   status: z.enum(["active", "inactive"]).optional(),
 });
 
