@@ -5,7 +5,11 @@ import { IPermissionRepository } from "../../repositories/interfaces/permission.
 import { IRoleService } from "../interfaces/role.service.interface.js";
 import { Types } from "mongoose";
 import { RoleMapper } from "../../mappers/role.mapper.js";
-import { RoleResponseDTO, CreateRoleDTO, UpdateRoleDTO } from "../../dto/role.dto.js";
+import {
+  RoleResponseDTO,
+  CreateRoleDTO,
+  UpdateRoleDTO,
+} from "../../dto/role.dto.js";
 import { CustomError } from "../../utils/custom-error.js";
 import { statusCodes } from "../../constants/enums/statusCodes.js";
 
@@ -13,15 +17,16 @@ import { statusCodes } from "../../constants/enums/statusCodes.js";
 export class RoleService implements IRoleService {
   constructor(
     @inject(TYPES.RoleRepository) private _roleRepository: IRoleRepository,
-    @inject(TYPES.PermissionRepository) private _permissionRepository: IPermissionRepository
+    @inject(TYPES.PermissionRepository)
+    private _permissionRepository: IPermissionRepository,
   ) {}
 
   async getAllRoles(tenantId: string): Promise<RoleResponseDTO[]> {
     try {
       const roles = await this._roleRepository.findTenantRoles(tenantId);
       return roles
-        .filter(role => !this.isAdminRoleName(role.name))
-        .map(role => RoleMapper.toResponse(role));
+        .filter((role) => !this.isAdminRoleName(role.name))
+        .map((role) => RoleMapper.toResponse(role));
     } catch (error) {
       if (error instanceof CustomError) throw error;
       throw new CustomError(
@@ -31,9 +36,11 @@ export class RoleService implements IRoleService {
     }
   }
 
-  async createRole(tenantId: string, roleData: CreateRoleDTO): Promise<RoleResponseDTO> {
+  async createRole(
+    tenantId: string,
+    roleData: CreateRoleDTO,
+  ): Promise<RoleResponseDTO> {
     try {
-        
       if (this.isAdminRoleName(roleData.name)) {
         throw new CustomError(
           "Admin role is reserved and cannot be created",
@@ -41,29 +48,29 @@ export class RoleService implements IRoleService {
         );
       }
 
-      const existingRole= await this._roleRepository.findOne({
+      const existingRole = await this._roleRepository.findOne({
         tenantId,
-        name:roleData.name.toLowerCase()
-      })
-      
-      if(existingRole){
-        throw new CustomError("Role already existing with in the Same Tenant",statusCodes.CONFLICT)
+        name: roleData.name.toLowerCase(),
+      });
+
+      if (existingRole) {
+        throw new CustomError(
+          "Role already existing with in the Same Tenant",
+          statusCodes.CONFLICT,
+        );
       }
 
       const permissions = await this._permissionRepository.find({
         name: { $in: roleData.permissions || [] },
-        $or: [
-          { tenantId: null },
-          { tenantId: new Types.ObjectId(tenantId) },
-        ],
+        $or: [{ tenantId: null }, { tenantId: new Types.ObjectId(tenantId) }],
       } as any);
-      const permissionIds = permissions.map(p => p._id as Types.ObjectId);
+      const permissionIds = permissions.map((p) => p._id as Types.ObjectId);
 
       const role = await this._roleRepository.create({
         tenantId: new Types.ObjectId(tenantId),
         name: roleData.name,
         description: roleData.description,
-        permissions: permissionIds
+        permissions: permissionIds,
       } as any);
       role.permissions = permissions as any;
 
@@ -77,10 +84,17 @@ export class RoleService implements IRoleService {
     }
   }
 
-  async updateRole(roleId: string, tenantId: string, roleData: UpdateRoleDTO): Promise<RoleResponseDTO | null> {
+  async updateRole(
+    roleId: string,
+    tenantId: string,
+    roleData: UpdateRoleDTO,
+  ): Promise<RoleResponseDTO | null> {
     try {
       // Validate role belongs to tenant
-      const role = await this._roleRepository.findOne({ _id: roleId, tenantId } as any);
+      const role = await this._roleRepository.findOne({
+        _id: roleId,
+        tenantId,
+      } as any);
       if (!role) {
         throw new CustomError(
           "Role not found or does not belong to this tenant",
@@ -88,7 +102,10 @@ export class RoleService implements IRoleService {
         );
       }
 
-      if (this.isAdminRoleName(role.name) || this.isAdminRoleName(roleData.name)) {
+      if (
+        this.isAdminRoleName(role.name) ||
+        this.isAdminRoleName(roleData.name)
+      ) {
         throw new CustomError(
           "Admin role is reserved and cannot be modified",
           statusCodes.FORBIDDEN,
@@ -97,19 +114,16 @@ export class RoleService implements IRoleService {
 
       const permissions = await this._permissionRepository.find({
         name: { $in: roleData.permissions || [] },
-        $or: [
-          { tenantId: null },
-          { tenantId: new Types.ObjectId(tenantId) },
-        ],
+        $or: [{ tenantId: null }, { tenantId: new Types.ObjectId(tenantId) }],
       } as any);
-      const permissionIds = permissions.map(p => p._id as Types.ObjectId);
+      const permissionIds = permissions.map((p) => p._id as Types.ObjectId);
 
       const updatedRole = await this._roleRepository.update(roleId, {
         name: roleData.name,
         description: roleData.description,
-        permissions: permissionIds
+        permissions: permissionIds,
       });
-      
+
       if (!updatedRole) {
         throw new CustomError(
           "Failed to update role",
@@ -129,7 +143,10 @@ export class RoleService implements IRoleService {
 
   async deleteRole(roleId: string, tenantId: string): Promise<boolean> {
     try {
-      const role = await this._roleRepository.findOne({ _id: roleId, tenantId });
+      const role = await this._roleRepository.findOne({
+        _id: roleId,
+        tenantId,
+      });
       if (!role) {
         throw new CustomError(
           "Role not found or does not belong to this tenant",

@@ -1,6 +1,7 @@
 import React, { lazy } from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
 import { BoneSuspense } from "boneyard-js/react";
+import ProtectedRoute from "./ProtectedRoute";
 
 // Lazy-loaded pages
 const SigninPage = lazy(() => import("../../pages/Auth/Signin"));
@@ -30,7 +31,9 @@ const ClientRoutes: React.FC = () => {
       <Routes>
         <Route path="/signin" element={<SigninPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<DashboardPage />} />
+        </Route>
         <Route path="*" element={<Navigate to="/signin" replace />} />
       </Routes>
     </BoneSuspense>
